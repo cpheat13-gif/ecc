@@ -70,6 +70,18 @@ export default function RecipeModal() {
 
   const { day, type: mealType, recipe } = selectedMeal;
   const dayConfig = state.weekConfig[day];
+  const isGenerating =
+    state.generatingMeal?.day === day && state.generatingMeal?.type === mealType;
+
+  const starKey = `${day}-${mealType}`;
+  const isStarred = !!state.starredMeals?.[starKey];
+
+  const handleStar = () => {
+    dispatch(isStarred
+      ? { type: 'UNSTAR_MEAL', day, mealType }
+      : { type: 'STAR_MEAL', day, mealType, recipe }
+    );
+  };
 
   const handleSwap = () => {
     dispatch({ type: 'CLOSE_RECIPE' });
@@ -84,13 +96,17 @@ export default function RecipeModal() {
       className="fixed inset-0 z-50 flex flex-col justify-end"
       onClick={(e) => e.target === e.currentTarget && dispatch({ type: 'CLOSE_RECIPE' })}
     >
+      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => dispatch({ type: 'CLOSE_RECIPE' })} />
 
+      {/* Sheet */}
       <div className="relative bg-slate-900 rounded-t-3xl max-h-[90vh] flex flex-col border-t border-slate-700">
+        {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-2 shrink-0">
           <div className="w-10 h-1 bg-slate-600 rounded-full" />
         </div>
 
+        {/* Header */}
         <div className="px-4 pb-3 shrink-0 border-b border-slate-800">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
@@ -108,12 +124,25 @@ export default function RecipeModal() {
                 <span className="text-sm text-slate-400">🍽 {portions}</span>
               </div>
             </div>
-            <button
-              onClick={() => dispatch({ type: 'CLOSE_RECIPE' })}
-              className="shrink-0 p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-slate-200"
-            >
-              ✕
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={handleStar}
+                className={`p-2 rounded-xl transition-colors ${
+                  isStarred
+                    ? 'bg-amber-500/20 text-amber-400'
+                    : 'bg-slate-800 text-slate-500 hover:text-amber-400'
+                }`}
+                title={isStarred ? 'Remove from log' : 'Log this meal'}
+              >
+                {isStarred ? '★' : '☆'}
+              </button>
+              <button
+                onClick={() => dispatch({ type: 'CLOSE_RECIPE' })}
+                className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-slate-200"
+              >
+                ✕
+              </button>
+            </div>
           </div>
 
           <button
@@ -124,7 +153,9 @@ export default function RecipeModal() {
           </button>
         </div>
 
+        {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto px-4 pb-8 space-y-6 pt-4">
+          {/* Macros */}
           <section>
             <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
               Macros per serving
@@ -132,6 +163,7 @@ export default function RecipeModal() {
             <MacroTable macros={recipe.macros} />
           </section>
 
+          {/* Ingredients */}
           <section>
             <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
               Ingredients
@@ -158,6 +190,7 @@ export default function RecipeModal() {
             </div>
           </section>
 
+          {/* Method */}
           {recipe.steps?.length > 0 && (
             <section>
               <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
@@ -176,6 +209,7 @@ export default function RecipeModal() {
             </section>
           )}
 
+          {/* Whole Foods brands */}
           {recipe.wholeFoodsBrands?.length > 0 && (
             <section>
               <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">

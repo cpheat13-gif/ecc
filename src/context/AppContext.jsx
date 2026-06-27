@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { SEED_DINNERS } from '../data/seedData';
 
 export const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 export const DAY_LABELS = {
@@ -23,11 +22,7 @@ function buildMealPlan(weekConfig) {
   DAYS.forEach(day => {
     plan[day] = {};
     (weekConfig[day]?.meals || []).forEach(mealType => {
-      if (mealType === 'dinner' && SEED_DINNERS[day]) {
-        plan[day][mealType] = SEED_DINNERS[day];
-      } else {
-        plan[day][mealType] = null;
-      }
+      plan[day][mealType] = null;
     });
   });
   return plan;
@@ -43,6 +38,7 @@ const INITIAL_STATE = {
   generatingMeal: null,
   optionsSheet: null,
   shoppingChecked: {},
+  starredMeals: {},
 };
 
 function reducer(state, action) {
@@ -92,6 +88,26 @@ function reducer(state, action) {
 
     case 'CLOSE_OPTIONS':
       return { ...state, optionsSheet: null };
+
+    case 'STAR_MEAL': {
+      const key = `${action.day}-${action.mealType}`;
+      return {
+        ...state,
+        starredMeals: {
+          ...state.starredMeals,
+          [key]: { recipe: action.recipe, day: action.day, mealType: action.mealType, starredAt: Date.now() },
+        },
+      };
+    }
+
+    case 'UNSTAR_MEAL': {
+      const next = { ...state.starredMeals };
+      delete next[`${action.day}-${action.mealType}`];
+      return { ...state, starredMeals: next };
+    }
+
+    case 'CLEAR_LOG':
+      return { ...state, starredMeals: {} };
 
     case 'TOGGLE_SHOPPING':
       return {

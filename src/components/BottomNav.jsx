@@ -3,10 +3,12 @@ import { useApp } from '../context/AppContext';
 const TABS = [
   { id: 'dashboard', label: 'Week',     icon: '📅' },
   { id: 'shopping',  label: 'Shopping', icon: '🛒' },
+  { id: 'log',       label: 'Log',      icon: '⭐' },
 ];
 
 export default function BottomNav() {
   const { state, dispatch } = useApp();
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40">
       <div className="max-w-[430px] mx-auto">
@@ -24,6 +26,9 @@ export default function BottomNav() {
                 >
                   <span className="text-xl leading-none">{tab.icon}</span>
                   <span>{tab.label}</span>
+                  {active && (
+                    <span className="absolute bottom-1 w-1 h-1 rounded-full bg-emerald-400" />
+                  )}
                 </button>
               );
             })}
