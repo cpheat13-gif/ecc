@@ -1,7 +1,15 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+const SUPABASE_CONFIGURED =
+  !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
 export async function proxy(request: NextRequest) {
+  // If Supabase isn't configured, allow all traffic through (dev / demo mode)
+  if (!SUPABASE_CONFIGURED) {
+    return NextResponse.next({ request })
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -29,7 +37,12 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  if (!user && !pathname.startsWith('/login') && !pathname.startsWith('/signup') && !pathname.startsWith('/auth')) {
+  if (
+    !user &&
+    !pathname.startsWith('/login') &&
+    !pathname.startsWith('/signup') &&
+    !pathname.startsWith('/auth')
+  ) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
