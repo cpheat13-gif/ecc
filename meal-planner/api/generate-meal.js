@@ -25,11 +25,16 @@ export default async function handler(req, res) {
     const result = JSON.parse(cleaned);
     res.json(result);
   } catch (err) {
-    console.error('[generate-meal]', err.message);
-    res.status(500).json({
-      error: err instanceof SyntaxError
-        ? 'Model returned invalid JSON — try again'
-        : 'Failed to generate meal. Check your API key.',
-    });
+    console.error('[generate-meal]', err.status, err.message);
+    if (err instanceof SyntaxError) {
+      return res.status(500).json({ error: 'Model returned invalid JSON — try again' });
+    }
+    if (err.status === 401) {
+      return res.status(500).json({ error: 'Invalid API key — check ANTHROPIC_API_KEY in Vercel env vars' });
+    }
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.status(500).json({ error: 'ANTHROPIC_API_KEY is not set — add it in Vercel → Settings → Environment Variables' });
+    }
+    res.status(500).json({ error: `API error ${err.status || ''}: ${err.message}` });
   }
 }
