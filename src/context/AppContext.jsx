@@ -9,13 +9,13 @@ export const DAY_LABELS = {
 export const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack'];
 
 const DEFAULT_WEEK_CONFIG = {
-  monday:    { meals: ['dinner'], connorTraining: true,  isaTraining: true  },
-  tuesday:   { meals: ['dinner'], connorTraining: true,  isaTraining: true  },
-  wednesday: { meals: ['dinner'], connorTraining: true,  isaTraining: false },
-  thursday:  { meals: ['dinner'], connorTraining: true,  isaTraining: true  },
-  friday:    { meals: ['dinner'], connorTraining: true,  isaTraining: false },
-  saturday:  { meals: [],         connorTraining: false, isaTraining: false },
-  sunday:    { meals: [],         connorTraining: false, isaTraining: false },
+  monday:    { participants: 'both', meals: ['dinner'], connorTraining: true,  isaTraining: true  },
+  tuesday:   { participants: 'both', meals: ['dinner'], connorTraining: true,  isaTraining: true  },
+  wednesday: { participants: 'both', meals: ['dinner'], connorTraining: true,  isaTraining: false },
+  thursday:  { participants: 'both', meals: ['dinner'], connorTraining: true,  isaTraining: true  },
+  friday:    { participants: 'both', meals: ['dinner'], connorTraining: true,  isaTraining: false },
+  saturday:  { participants: 'both', meals: [],         connorTraining: false, isaTraining: false },
+  sunday:    { participants: 'both', meals: [],         connorTraining: false, isaTraining: false },
 };
 
 function buildMealPlan(weekConfig) {
@@ -41,6 +41,7 @@ const INITIAL_STATE = {
   mealPlan: {},
   selectedMeal: null,
   generatingMeal: null,
+  optionsSheet: null,
   shoppingChecked: {},
 };
 
@@ -57,6 +58,7 @@ function reducer(state, action) {
         activeDay: 'monday',
       };
     }
+
     case 'SET_MEAL':
       return {
         ...state,
@@ -69,16 +71,28 @@ function reducer(state, action) {
         },
         generatingMeal: null,
       };
+
     case 'SET_GENERATING':
       return { ...state, generatingMeal: action.value };
+
     case 'SET_VIEW':
       return { ...state, view: action.view, selectedMeal: null };
+
     case 'SET_ACTIVE_DAY':
       return { ...state, activeDay: action.day };
+
     case 'OPEN_RECIPE':
       return { ...state, selectedMeal: action.meal };
+
     case 'CLOSE_RECIPE':
       return { ...state, selectedMeal: null };
+
+    case 'OPEN_OPTIONS':
+      return { ...state, optionsSheet: { day: action.day, mealType: action.mealType } };
+
+    case 'CLOSE_OPTIONS':
+      return { ...state, optionsSheet: null };
+
     case 'TOGGLE_SHOPPING':
       return {
         ...state,
@@ -87,10 +101,13 @@ function reducer(state, action) {
           [action.key]: !state.shoppingChecked[action.key],
         },
       };
+
     case 'CLEAR_SHOPPING':
       return { ...state, shoppingChecked: {} };
+
     case 'RESET':
       return { ...INITIAL_STATE };
+
     default:
       return state;
   }
