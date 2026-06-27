@@ -73,6 +73,16 @@ export default function RecipeModal() {
   const isGenerating =
     state.generatingMeal?.day === day && state.generatingMeal?.type === mealType;
 
+  const starKey = `${day}-${mealType}`;
+  const isStarred = !!state.starredMeals?.[starKey];
+
+  const handleStar = () => {
+    dispatch(isStarred
+      ? { type: 'UNSTAR_MEAL', day, mealType }
+      : { type: 'STAR_MEAL', day, mealType, recipe }
+    );
+  };
+
   const handleSwap = () => {
     dispatch({ type: 'CLOSE_RECIPE' });
     dispatch({ type: 'OPEN_OPTIONS', day, mealType });
@@ -114,12 +124,25 @@ export default function RecipeModal() {
                 <span className="text-sm text-slate-400">🍽 {portions}</span>
               </div>
             </div>
-            <button
-              onClick={() => dispatch({ type: 'CLOSE_RECIPE' })}
-              className="shrink-0 p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-slate-200"
-            >
-              ✕
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={handleStar}
+                className={`p-2 rounded-xl transition-colors ${
+                  isStarred
+                    ? 'bg-amber-500/20 text-amber-400'
+                    : 'bg-slate-800 text-slate-500 hover:text-amber-400'
+                }`}
+                title={isStarred ? 'Remove from log' : 'Log this meal'}
+              >
+                {isStarred ? '★' : '☆'}
+              </button>
+              <button
+                onClick={() => dispatch({ type: 'CLOSE_RECIPE' })}
+                className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-slate-200"
+              >
+                ✕
+              </button>
+            </div>
           </div>
 
           <button

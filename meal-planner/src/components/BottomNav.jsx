@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 const TABS = [
   { id: 'dashboard', label: 'Week',     icon: '📅' },
   { id: 'shopping',  label: 'Shopping', icon: '🛒' },
+  { id: 'log',       label: 'Log',      icon: '⭐' },
 ];
 
 export default function BottomNav() {
