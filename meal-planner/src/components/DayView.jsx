@@ -47,33 +47,41 @@ export default function DayView({ day }) {
   return (
     <div className="px-4 pb-8 space-y-4">
       {/* Training badges */}
-      <div className="flex gap-2 pt-1">
-        <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-          dayConfig.connorTraining ? 'bg-sky-500/20 text-sky-400' : 'bg-slate-700 text-slate-400'
-        }`}>
-          Connor: {dayConfig.connorTraining ? '💪 Training' : '🛋 Rest'}
-        </span>
-        <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-          dayConfig.isaTraining ? 'bg-purple-500/20 text-purple-400' : 'bg-slate-700 text-slate-400'
-        }`}>
-          Isa: {dayConfig.isaTraining ? '💪 Training' : '🛋 Rest'}
-        </span>
+      <div className="flex gap-2 pt-1 flex-wrap">
+        {dayConfig.participants !== 'isa' && (
+          <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+            dayConfig.connorTraining ? 'bg-sky-500/20 text-sky-400' : 'bg-slate-700 text-slate-400'
+          }`}>
+            Connor: {dayConfig.connorTraining ? '💪 Training' : '🛋 Rest'}
+          </span>
+        )}
+        {dayConfig.participants !== 'connor' && (
+          <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+            dayConfig.isaTraining ? 'bg-purple-500/20 text-purple-400' : 'bg-slate-700 text-slate-400'
+          }`}>
+            Isa: {dayConfig.isaTraining ? '💪 Training' : '🛋 Rest'}
+          </span>
+        )}
       </div>
 
       {/* Macro summaries */}
       <div className="flex gap-2">
-        <PersonMacros
-          name="Connor"
-          totals={totals.connor}
-          targets={targets.connor}
-          color="sky"
-        />
-        <PersonMacros
-          name="Isa"
-          totals={totals.isa}
-          targets={targets.isa}
-          color="purple"
-        />
+        {dayConfig.participants !== 'isa' && (
+          <PersonMacros
+            name="Connor"
+            totals={totals.connor}
+            targets={targets.connor}
+            color="sky"
+          />
+        )}
+        {dayConfig.participants !== 'connor' && (
+          <PersonMacros
+            name="Isa"
+            totals={totals.isa}
+            targets={targets.isa}
+            color="purple"
+          />
+        )}
       </div>
 
       {/* Meal slots */}

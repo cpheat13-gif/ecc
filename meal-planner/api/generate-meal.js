@@ -7,7 +7,7 @@ export default async function handler(req, res) {
 
   const { prompt } = req.body;
 
-  if (!prompt || typeof prompt !== 'string' || prompt.length > 3000) {
+  if (!prompt || typeof prompt !== 'string' || prompt.length > 5000) {
     return res.status(400).json({ error: 'Invalid prompt' });
   }
 
@@ -16,14 +16,14 @@ export default async function handler(req, res) {
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 700,
+      max_tokens: 2048,
       messages: [{ role: 'user', content: prompt }],
     });
 
     const raw = message.content[0].text.trim();
     const cleaned = raw.replace(/^```(?:json)?\s*/m, '').replace(/\s*```$/m, '');
-    const meal = JSON.parse(cleaned);
-    res.json(meal);
+    const result = JSON.parse(cleaned);
+    res.json(result);
   } catch (err) {
     console.error('[generate-meal]', err.message);
     res.status(500).json({

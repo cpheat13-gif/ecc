@@ -9,13 +9,13 @@ export const DAY_LABELS = {
 export const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack'];
 
 const DEFAULT_WEEK_CONFIG = {
-  monday:    { meals: ['dinner'], connorTraining: true,  isaTraining: true  },
-  tuesday:   { meals: ['dinner'], connorTraining: true,  isaTraining: true  },
-  wednesday: { meals: ['dinner'], connorTraining: true,  isaTraining: false },
-  thursday:  { meals: ['dinner'], connorTraining: true,  isaTraining: true  },
-  friday:    { meals: ['dinner'], connorTraining: true,  isaTraining: false },
-  saturday:  { meals: [],         connorTraining: false, isaTraining: false },
-  sunday:    { meals: [],         connorTraining: false, isaTraining: false },
+  monday:    { participants: 'both', meals: ['dinner'], connorTraining: true,  isaTraining: true  },
+  tuesday:   { participants: 'both', meals: ['dinner'], connorTraining: true,  isaTraining: true  },
+  wednesday: { participants: 'both', meals: ['dinner'], connorTraining: true,  isaTraining: false },
+  thursday:  { participants: 'both', meals: ['dinner'], connorTraining: true,  isaTraining: true  },
+  friday:    { participants: 'both', meals: ['dinner'], connorTraining: true,  isaTraining: false },
+  saturday:  { participants: 'both', meals: [],         connorTraining: false, isaTraining: false },
+  sunday:    { participants: 'both', meals: [],         connorTraining: false, isaTraining: false },
 };
 
 function buildMealPlan(weekConfig) {
@@ -41,6 +41,7 @@ const INITIAL_STATE = {
   mealPlan: {},
   selectedMeal: null,
   generatingMeal: null,
+  optionsSheet: null,
   shoppingChecked: {},
 };
 
@@ -85,6 +86,12 @@ function reducer(state, action) {
 
     case 'CLOSE_RECIPE':
       return { ...state, selectedMeal: null };
+
+    case 'OPEN_OPTIONS':
+      return { ...state, optionsSheet: { day: action.day, mealType: action.mealType } };
+
+    case 'CLOSE_OPTIONS':
+      return { ...state, optionsSheet: null };
 
     case 'TOGGLE_SHOPPING':
       return {

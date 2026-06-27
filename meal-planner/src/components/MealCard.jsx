@@ -1,6 +1,4 @@
 import { useApp } from '../context/AppContext';
-import { getMealTargets } from '../utils/macros';
-import { buildMealPrompt, generateMeal } from '../utils/prompt';
 
 const MEAL_LABEL = {
   breakfast: 'Breakfast',
@@ -11,34 +9,18 @@ const MEAL_LABEL = {
 
 export default function MealCard({ day, mealType, recipe }) {
   const { state, dispatch } = useApp();
-  const dayConfig = state.weekConfig[day];
   const isGenerating =
     state.generatingMeal?.day === day && state.generatingMeal?.type === mealType;
 
-  const handleGenerate = async () => {
-    dispatch({ type: 'SET_GENERATING', value: { day, type: mealType } });
-
-    try {
-      const targets = getMealTargets(
-        mealType,
-        dayConfig.connorTraining,
-        dayConfig.isaTraining
-      );
-      const dayType = dayConfig.connorTraining ? 'training' : 'rest';
-      const prompt = buildMealPrompt({ mealType, dayType, targets });
-      const meal = await generateMeal(prompt);
-      dispatch({ type: 'SET_MEAL', day, mealType, recipe: { ...meal, mealType } });
-    } catch (err) {
-      alert(`Could not generate meal: ${err.message}`);
-      dispatch({ type: 'SET_GENERATING', value: null });
-    }
+  const openOptions = (e) => {
+    if (e) e.stopPropagation();
+    dispatch({ type: 'OPEN_OPTIONS', day, mealType });
   };
 
   const handleOpen = () => {
     dispatch({ type: 'OPEN_RECIPE', meal: { day, type: mealType, recipe } });
   };
 
-  // Empty state
   if (!recipe) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-600 bg-slate-800/40 p-4">
@@ -47,10 +29,10 @@ export default function MealCard({ day, mealType, recipe }) {
             <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">
               {MEAL_LABEL[mealType]}
             </div>
-            <div className="text-sm text-slate-400">No meal generated yet</div>
+            <div className="text-sm text-slate-400">No meal selected yet</div>
           </div>
           <button
-            onClick={handleGenerate}
+            onClick={openOptions}
             disabled={isGenerating}
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-all active:scale-95 disabled:opacity-60"
           >
@@ -60,7 +42,7 @@ export default function MealCard({ day, mealType, recipe }) {
                 Generating…
               </>
             ) : (
-              <>✨ Generate</>
+              <>✨ Pick meal</>
             )}
           </button>
         </div>
@@ -93,9 +75,9 @@ export default function MealCard({ day, mealType, recipe }) {
           </div>
 
           <button
-            onClick={e => { e.stopPropagation(); handleGenerate(); }}
+            onClick={openOptions}
             disabled={isGenerating}
-            title="Swap meal"
+            title="Pick a different meal"
             className="shrink-0 p-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-400 text-xs transition-colors disabled:opacity-50"
           >
             {isGenerating

@@ -3,6 +3,7 @@ import SetupFlow from './components/SetupFlow';
 import Dashboard from './components/Dashboard';
 import ShoppingList from './components/ShoppingList';
 import RecipeModal from './components/RecipeModal';
+import MealOptionsSheet from './components/MealOptionsSheet';
 import BottomNav from './components/BottomNav';
 
 function AppShell() {
@@ -18,6 +19,7 @@ function AppShell() {
       {state.view === 'shopping'  && <ShoppingList />}
       <BottomNav />
       {state.selectedMeal && <RecipeModal />}
+      {state.optionsSheet && <MealOptionsSheet />}
     </div>
   );
 }

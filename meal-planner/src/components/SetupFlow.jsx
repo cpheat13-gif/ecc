@@ -1,9 +1,30 @@
 import { useState } from 'react';
-import { useApp, DAYS, DAY_LABELS, MEAL_TYPES } from '../context/AppContext';
+import { useApp, DAYS } from '../context/AppContext';
 
-const MEAL_ICONS = { breakfast: '☀️', lunch: '🥗', dinner: '🍽️', snack: '🍎' };
+const DAY_FULL = {
+  monday: 'Monday', tuesday: 'Tuesday', wednesday: 'Wednesday',
+  thursday: 'Thursday', friday: 'Friday', saturday: 'Saturday', sunday: 'Sunday',
+};
 
-function DayCard({ day, config, onChange }) {
+const MEAL_OPTIONS = [
+  { id: 'breakfast', icon: '☀️', label: 'Breakfast' },
+  { id: 'lunch',     icon: '🥗', label: 'Lunch'     },
+  { id: 'dinner',    icon: '🍽️', label: 'Dinner'    },
+  { id: 'snack',     icon: '🍎', label: 'Snack'     },
+];
+
+function Toggle({ on, onToggle, colorOn = 'bg-emerald-500' }) {
+  return (
+    <button
+      onClick={onToggle}
+      className={`w-12 h-6 rounded-full transition-colors relative flex-shrink-0 ${on ? colorOn : 'bg-slate-600'}`}
+    >
+      <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${on ? 'translate-x-6' : 'translate-x-0.5'}`} />
+    </button>
+  );
+}
+
+function DayStep({ config, onChange }) {
   const toggleMeal = (meal) => {
     const meals = config.meals.includes(meal)
       ? config.meals.filter(m => m !== meal)
@@ -11,64 +32,156 @@ function DayCard({ day, config, onChange }) {
     onChange({ ...config, meals });
   };
 
-  const isOff = config.meals.length === 0;
-
   return (
-    <div className={`rounded-2xl border p-4 transition-colors ${
-      isOff ? 'border-slate-700 bg-slate-800/50' : 'border-slate-600 bg-slate-800'
-    }`}>
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold text-slate-100 capitalize">{day}</h3>
-        {isOff && <span className="text-xs text-slate-500 bg-slate-700 px-2 py-0.5 rounded-full">Rest</span>}
-      </div>
-
-      {/* Meal toggles */}
-      <div className="flex flex-wrap gap-2 mb-3">
-        {MEAL_TYPES.map(meal => (
-          <button
-            key={meal}
-            onClick={() => toggleMeal(meal)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
-              config.meals.includes(meal)
-                ? 'bg-emerald-500 text-white'
-                : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
-            }`}
-          >
-            {MEAL_ICONS[meal]} {meal.charAt(0).toUpperCase() + meal.slice(1)}
-          </button>
-        ))}
-      </div>
-
-      {/* Training toggles */}
-      {config.meals.length > 0 && (
-        <div className="space-y-2 pt-3 border-t border-slate-700">
-          {[
-            { key: 'connorTraining', label: 'Connor' },
-            { key: 'isaTraining',    label: 'Isa'    },
-          ].map(({ key, label }) => (
-            <div key={key} className="flex items-center justify-between">
-              <span className="text-xs text-slate-400">{label}</span>
-              <div className="flex gap-1.5">
-                {['Training', 'Rest'].map(mode => (
-                  <button
-                    key={mode}
-                    onClick={() => onChange({ ...config, [key]: mode === 'Training' })}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
-                      (config[key] ? 'Training' : 'Rest') === mode
-                        ? mode === 'Training'
-                          ? 'bg-sky-500 text-white'
-                          : 'bg-slate-600 text-slate-200'
-                        : 'bg-slate-700/50 text-slate-500 hover:bg-slate-700'
-                    }`}
-                  >
-                    {mode}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
+    <div className="flex-1 overflow-y-auto space-y-4">
+      {/* Enable toggle */}
+      <div className="flex items-center justify-between bg-slate-800 rounded-2xl p-4 border border-slate-700">
+        <div>
+          <div className="text-white font-medium">Plan meals this day?</div>
+          <div className="text-slate-500 text-xs mt-0.5">Toggle on to set up meals</div>
         </div>
+        <Toggle on={config.enabled} onToggle={() => onChange({ ...config, enabled: !config.enabled })} />
+      </div>
+
+      {config.enabled && (
+        <>
+          {/* Who */}
+          <div>
+            <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2 px-1">
+              Who are we planning for?
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { id: 'both',   label: 'Both'   },
+                { id: 'connor', label: 'Connor' },
+                { id: 'isa',    label: 'Isa'    },
+              ].map(({ id, label }) => (
+                <button
+                  key={id}
+                  onClick={() => onChange({ ...config, participants: id })}
+                  className={`py-3 rounded-2xl text-sm font-medium transition-colors ${
+                    config.participants === id
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-slate-800 text-slate-400 border border-slate-700'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Meals */}
+          <div>
+            <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2 px-1">
+              Which meals?
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {MEAL_OPTIONS.map(({ id, icon, label }) => (
+                <button
+                  key={id}
+                  onClick={() => toggleMeal(id)}
+                  className={`py-3 rounded-2xl text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
+                    config.meals.includes(id)
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-slate-800 text-slate-400 border border-slate-700'
+                  }`}
+                >
+                  <span>{icon}</span>{label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Training */}
+          <div>
+            <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2 px-1">
+              Training day?
+            </div>
+            <div className="space-y-2">
+              {config.participants !== 'isa' && (
+                <div className="flex items-center justify-between bg-slate-800 rounded-2xl px-4 py-3 border border-slate-700">
+                  <div>
+                    <span className="text-white text-sm font-medium">Connor</span>
+                    <span className="text-xs text-slate-500 ml-2">
+                      {config.connorTraining ? '2,750 kcal' : '2,450 kcal'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-500">{config.connorTraining ? 'Training' : 'Rest'}</span>
+                    <Toggle
+                      on={config.connorTraining}
+                      onToggle={() => onChange({ ...config, connorTraining: !config.connorTraining })}
+                      colorOn="bg-sky-500"
+                    />
+                  </div>
+                </div>
+              )}
+              {config.participants !== 'connor' && (
+                <div className="flex items-center justify-between bg-slate-800 rounded-2xl px-4 py-3 border border-slate-700">
+                  <div>
+                    <span className="text-white text-sm font-medium">Isa</span>
+                    <span className="text-xs text-slate-500 ml-2">
+                      {config.isaTraining ? '1,700 kcal' : '1,500 kcal'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-500">{config.isaTraining ? 'Training' : 'Rest'}</span>
+                    <Toggle
+                      on={config.isaTraining}
+                      onToggle={() => onChange({ ...config, isaTraining: !config.isaTraining })}
+                      colorOn="bg-purple-500"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
       )}
+    </div>
+  );
+}
+
+function ReviewStep({ weekConfig, onEdit }) {
+  return (
+    <div className="flex-1 overflow-y-auto space-y-2">
+      {DAYS.map((day, i) => {
+        const cfg = weekConfig[day];
+        const participantLabel = cfg.participants === 'both'
+          ? 'Connor & Isa'
+          : cfg.participants === 'connor' ? 'Connor only' : 'Isa only';
+
+        return (
+          <div key={day} className={`rounded-2xl p-4 ${cfg.enabled ? 'bg-slate-800 border border-slate-700' : 'bg-slate-800/30'}`}>
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="text-white font-semibold w-8 shrink-0">{DAY_FULL[day].slice(0, 3)}</span>
+                {cfg.enabled && cfg.meals.length > 0 ? (
+                  <div className="min-w-0">
+                    <div className="text-xs text-emerald-400 capitalize truncate">
+                      {cfg.meals.join(' · ')}
+                    </div>
+                    <div className="text-xs text-slate-500 mt-0.5">
+                      {participantLabel}
+                      {cfg.participants !== 'isa' && ` · C: ${cfg.connorTraining ? 'Train' : 'Rest'}`}
+                      {cfg.participants !== 'connor' && ` · I: ${cfg.isaTraining ? 'Train' : 'Rest'}`}
+                    </div>
+                  </div>
+                ) : (
+                  <span className="text-xs text-slate-600">No meals planned</span>
+                )}
+              </div>
+              <button
+                onClick={() => onEdit(i)}
+                className="shrink-0 text-xs text-emerald-400 px-2 py-1 rounded-lg bg-emerald-500/10"
+              >
+                Edit
+              </button>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -76,104 +189,104 @@ function DayCard({ day, config, onChange }) {
 export default function SetupFlow() {
   const { state, dispatch } = useApp();
 
-  const [config, setConfig] = useState(state.weekConfig);
+  const initConfig = Object.fromEntries(
+    DAYS.map(d => [d, {
+      enabled: (state.weekConfig[d]?.meals?.length || 0) > 0,
+      participants: state.weekConfig[d]?.participants || 'both',
+      meals: state.weekConfig[d]?.meals || [],
+      connorTraining: state.weekConfig[d]?.connorTraining ?? true,
+      isaTraining:    state.weekConfig[d]?.isaTraining    ?? true,
+    }])
+  );
 
-  const updateDay = (day, dayConfig) => {
-    setConfig(prev => ({ ...prev, [day]: dayConfig }));
+  const [step, setStep] = useState(0);
+  const [weekConfig, setWeekConfig] = useState(initConfig);
+
+  const isReview = step === 7;
+  const day = DAYS[step] || null;
+
+  const updateDay = (cfg) => {
+    setWeekConfig(prev => ({ ...prev, [day]: cfg }));
   };
 
-  const totalMeals = Object.values(config).reduce((n, d) => n + d.meals.length, 0);
+  const totalMeals = Object.values(weekConfig).reduce(
+    (n, d) => n + (d.enabled ? d.meals.length : 0), 0
+  );
 
   const handleBuild = () => {
-    dispatch({ type: 'COMPLETE_SETUP', weekConfig: config });
-  };
-
-  const handlePreset = (preset) => {
-    if (preset === 'weekday-dinner') {
-      const next = { ...config };
-      DAYS.forEach(day => {
-        const isWeekend = day === 'saturday' || day === 'sunday';
-        next[day] = {
-          meals: isWeekend ? [] : ['dinner'],
-          connorTraining: !isWeekend,
-          isaTraining: false,
-        };
-      });
-      setConfig(next);
-    } else if (preset === 'full') {
-      const next = { ...config };
-      DAYS.forEach(day => {
-        const isWeekend = day === 'saturday' || day === 'sunday';
-        next[day] = {
-          meals: ['breakfast', 'lunch', 'dinner', 'snack'],
-          connorTraining: !isWeekend,
-          isaTraining: !isWeekend,
-        };
-      });
-      setConfig(next);
-    } else if (preset === 'clear') {
-      const next = { ...config };
-      DAYS.forEach(day => {
-        next[day] = { meals: [], connorTraining: false, isaTraining: false };
-      });
-      setConfig(next);
-    }
+    const finalConfig = Object.fromEntries(
+      DAYS.map(d => [d, {
+        ...weekConfig[d],
+        meals: weekConfig[d].enabled ? weekConfig[d].meals : [],
+      }])
+    );
+    dispatch({ type: 'COMPLETE_SETUP', weekConfig: finalConfig });
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col">
-      {/* Header */}
-      <div className="px-4 pt-12 pb-6">
-        <div className="text-emerald-400 text-sm font-medium mb-1">Weekly Meal Planner</div>
-        <h1 className="text-2xl font-bold text-slate-100">Configure Your Week</h1>
-        <p className="text-slate-400 text-sm mt-1">
-          Select meals and training days for Connor &amp; Isa.
-        </p>
-
-        {/* Presets */}
-        <div className="flex gap-2 mt-4 overflow-x-auto pb-1">
-          {[
-            { id: 'weekday-dinner', label: 'Weekday dinners' },
-            { id: 'full',           label: 'Full week'       },
-            { id: 'clear',          label: 'Clear all'       },
-          ].map(p => (
-            <button
-              key={p.id}
-              onClick={() => handlePreset(p.id)}
-              className="shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-700 text-slate-300 hover:bg-slate-600 transition-colors"
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Day cards */}
-      <div className="flex-1 overflow-y-auto px-4 space-y-3 pb-32">
-        {DAYS.map(day => (
-          <DayCard
-            key={day}
-            day={day}
-            config={config[day]}
-            onChange={(c) => updateDay(day, c)}
+    <div className="min-h-screen flex flex-col bg-slate-900 px-5 pt-12 pb-6 max-w-[430px] mx-auto">
+      {/* Progress bar */}
+      <div className="flex gap-1.5 mb-8">
+        {[...DAYS, 'review'].map((_, i) => (
+          <div
+            key={i}
+            className={`h-1.5 rounded-full transition-all flex-1 ${
+              i === step ? 'bg-emerald-400' : i < step ? 'bg-emerald-700' : 'bg-slate-700'
+            }`}
           />
         ))}
       </div>
 
-      {/* Footer CTA */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-slate-900 via-slate-900/95 to-transparent pb-8">
-        <button
-          onClick={handleBuild}
-          disabled={totalMeals === 0}
-          className="w-full py-4 rounded-2xl font-semibold text-white text-base transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-emerald-500 hover:bg-emerald-600 active:scale-95"
-        >
-          {totalMeals === 0
-            ? 'Select at least one meal'
-            : `Build My Plan · ${totalMeals} meal${totalMeals !== 1 ? 's' : ''}`}
-        </button>
-        <p className="text-center text-xs text-slate-500 mt-2">
-          Mon–Fri dinners pre-loaded with 5 seed recipes
-        </p>
+      {/* Header */}
+      <div className="mb-6 shrink-0">
+        {isReview ? (
+          <>
+            <div className="text-emerald-400 text-sm font-medium mb-1">Almost done!</div>
+            <h1 className="text-3xl font-bold text-white">Review your week</h1>
+          </>
+        ) : (
+          <>
+            <div className="text-emerald-400 text-sm font-medium mb-1">Day {step + 1} of 7</div>
+            <h1 className="text-3xl font-bold text-white">{DAY_FULL[day]}</h1>
+          </>
+        )}
+      </div>
+
+      {/* Content */}
+      {isReview ? (
+        <ReviewStep weekConfig={weekConfig} onEdit={(i) => setStep(i)} />
+      ) : (
+        <DayStep config={weekConfig[day]} onChange={updateDay} />
+      )}
+
+      {/* Nav */}
+      <div className="mt-5 shrink-0 flex gap-3">
+        {step > 0 && (
+          <button
+            onClick={() => setStep(s => s - 1)}
+            className="py-4 px-6 bg-slate-800 text-slate-300 rounded-2xl font-medium border border-slate-700"
+          >
+            Back
+          </button>
+        )}
+        {isReview ? (
+          <button
+            onClick={handleBuild}
+            disabled={totalMeals === 0}
+            className="flex-1 py-4 bg-emerald-500 text-white rounded-2xl font-semibold text-base active:scale-95 transition-transform disabled:opacity-40"
+          >
+            {totalMeals === 0
+              ? 'Add at least one meal'
+              : `Build My Plan · ${totalMeals} meal${totalMeals !== 1 ? 's' : ''}`}
+          </button>
+        ) : (
+          <button
+            onClick={() => setStep(s => s + 1)}
+            className="flex-1 py-4 bg-emerald-500 text-white rounded-2xl font-semibold text-base active:scale-95 transition-transform"
+          >
+            {step === 6 ? 'Review →' : 'Next →'}
+          </button>
+        )}
       </div>
     </div>
   );

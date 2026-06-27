@@ -1,7 +1,5 @@
 import { useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { getMealTargets } from '../utils/macros';
-import { buildMealPrompt, generateMeal } from '../utils/prompt';
 
 const CATEGORY_ICONS = {
   'Proteins':      '🥩',
@@ -75,20 +73,9 @@ export default function RecipeModal() {
   const isGenerating =
     state.generatingMeal?.day === day && state.generatingMeal?.type === mealType;
 
-  const handleSwap = async () => {
-    dispatch({ type: 'SET_GENERATING', value: { day, type: mealType } });
-    try {
-      const targets = getMealTargets(mealType, dayConfig.connorTraining, dayConfig.isaTraining);
-      const dayType = dayConfig.connorTraining ? 'training' : 'rest';
-      const prompt = buildMealPrompt({ mealType, dayType, targets });
-      const meal = await generateMeal(prompt);
-      const newRecipe = { ...meal, mealType };
-      dispatch({ type: 'SET_MEAL', day, mealType, recipe: newRecipe });
-      dispatch({ type: 'OPEN_RECIPE', meal: { day, type: mealType, recipe: newRecipe } });
-    } catch (err) {
-      alert(`Could not generate meal: ${err.message}`);
-      dispatch({ type: 'SET_GENERATING', value: null });
-    }
+  const handleSwap = () => {
+    dispatch({ type: 'CLOSE_RECIPE' });
+    dispatch({ type: 'OPEN_OPTIONS', day, mealType });
   };
 
   const grouped = groupIngredients(recipe.ingredients || []);
@@ -137,12 +124,9 @@ export default function RecipeModal() {
 
           <button
             onClick={handleSwap}
-            disabled={isGenerating}
-            className="mt-3 w-full py-2.5 rounded-xl border border-emerald-500/50 text-emerald-400 text-sm font-medium hover:bg-emerald-500/10 transition-colors disabled:opacity-50"
+            className="mt-3 w-full py-2.5 rounded-xl border border-emerald-500/50 text-emerald-400 text-sm font-medium hover:bg-emerald-500/10 transition-colors active:scale-95"
           >
-            {isGenerating
-              ? '✨ Generating new meal…'
-              : '↺ Swap for a different meal'}
+            ↺ Swap for a different meal
           </button>
         </div>
 
