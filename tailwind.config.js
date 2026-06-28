@@ -3,6 +3,9 @@ export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Outfit', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+      },
       colors: {
         brand: {
           50:  '#ecfdf5',
