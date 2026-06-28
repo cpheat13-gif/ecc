@@ -157,7 +157,7 @@ const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
   const saved = loadState();
-  const [state, dispatch] = useReducer(reducer, saved || INITIAL_STATE);
+  const [state, dispatch] = useReducer(reducer, saved ? { ...INITIAL_STATE, ...saved } : INITIAL_STATE);
 
   useEffect(() => {
     try {
