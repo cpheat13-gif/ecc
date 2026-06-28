@@ -66,21 +66,74 @@ function OptionCard({ option, participants, onSelect, selecting }) {
   );
 }
 
+function FavoriteCard({ entry, onImport, currentMealType }) {
+  const isSameType = entry.mealType === currentMealType;
+  return (
+    <button
+      onClick={onImport}
+      className="w-full text-left bg-white rounded-2xl p-4 border border-stone-200 shadow-sm active:scale-[0.98] transition-transform"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 mb-1">
+            <span className="text-sm">{MEAL_ICONS[entry.mealType] || '🍽'}</span>
+            <span className="text-xs text-stone-400 capitalize">{entry.mealType}</span>
+            {isSameType && (
+              <span className="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full">match</span>
+            )}
+          </div>
+          <p className="text-stone-900 font-semibold text-sm leading-snug truncate">{entry.recipe.name}</p>
+          <p className="text-xs text-stone-400 mt-0.5">🕐 {entry.recipe.cookTime}</p>
+        </div>
+        <span className="shrink-0 px-3 py-2 bg-amber-50 text-amber-700 text-xs font-semibold rounded-xl">
+          Use ★
+        </span>
+      </div>
+
+      {entry.recipe.macros && (
+        <div className="flex gap-2 mt-3">
+          {entry.recipe.macros.connor && (
+            <div className="flex-1 bg-blue-50 rounded-xl px-3 py-2">
+              <div className="text-[10px] text-blue-600 font-medium mb-0.5">Connor</div>
+              <div className="text-xs text-blue-700 font-semibold">{entry.recipe.macros.connor.calories} kcal</div>
+              <div className="text-[10px] text-blue-500">P {entry.recipe.macros.connor.protein}g</div>
+            </div>
+          )}
+          {entry.recipe.macros.isa && (
+            <div className="flex-1 bg-violet-50 rounded-xl px-3 py-2">
+              <div className="text-[10px] text-violet-600 font-medium mb-0.5">Isa</div>
+              <div className="text-xs text-violet-700 font-semibold">{entry.recipe.macros.isa.calories} kcal</div>
+              <div className="text-[10px] text-violet-500">P {entry.recipe.macros.isa.protein}g</div>
+            </div>
+          )}
+        </div>
+      )}
+    </button>
+  );
+}
+
 export default function MealOptionsSheet() {
   const { state, dispatch } = useApp();
-  const { optionsSheet, weekConfig } = state;
+  const { optionsSheet, weekConfig, starredMeals, settings } = state;
   const { day, mealType } = optionsSheet;
 
   const dayConfig = weekConfig[day];
   const participants = dayConfig.participants || 'both';
-  const targets = getMealTargets(mealType, dayConfig.connorTraining, dayConfig.isaTraining);
+  const targets = getMealTargets(mealType, dayConfig.connorTraining, dayConfig.isaTraining, settings);
 
+  const [tab, setTab] = useState('suggestions');
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchInput, setSearchInput] = useState('');
   const [currentSearch, setCurrentSearch] = useState('');
   const [selectingName, setSelectingName] = useState(null);
+
+  const favorites = Object.values(starredMeals || {}).sort((a, b) => {
+    if (a.mealType === mealType && b.mealType !== mealType) return -1;
+    if (b.mealType === mealType && a.mealType !== mealType) return 1;
+    return b.starredAt - a.starredAt;
+  });
 
   const fetchOptions = async (searchTerm = '') => {
     setLoading(true);
@@ -127,6 +180,11 @@ export default function MealOptionsSheet() {
     }
   };
 
+  const handleImportFavorite = (entry) => {
+    dispatch({ type: 'SET_MEAL', day, mealType, recipe: { ...entry.recipe, mealType } });
+    dispatch({ type: 'CLOSE_OPTIONS' });
+  };
+
   const close = () => dispatch({ type: 'CLOSE_OPTIONS' });
 
   return (
@@ -156,73 +214,116 @@ export default function MealOptionsSheet() {
             </button>
           </div>
 
-          {/* Search */}
-          <div className="flex gap-2">
-            <input
-              value={searchInput}
-              onChange={e => setSearchInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSearch()}
-              placeholder="Thai vibes, quick pasta, high protein…"
-              className="flex-1 bg-stone-50 text-stone-900 text-sm rounded-xl px-4 py-2.5 placeholder-stone-400 outline-none border border-stone-200 focus:border-emerald-500 transition-colors"
-            />
+          {/* Tabs */}
+          <div className="flex gap-1 p-1 bg-stone-100 rounded-xl mb-3">
             <button
-              onClick={handleSearch}
-              disabled={loading || !searchInput.trim()}
-              className="px-4 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-xl disabled:opacity-40 active:scale-95 transition-all shadow-sm"
+              onClick={() => setTab('suggestions')}
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                tab === 'suggestions' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500'
+              }`}
             >
-              Search
+              ✨ AI Suggestions
+            </button>
+            <button
+              onClick={() => setTab('favorites')}
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                tab === 'favorites' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500'
+              }`}
+            >
+              ★ Favorites {favorites.length > 0 && `(${favorites.length})`}
             </button>
           </div>
-          {currentSearch && (
-            <div className="mt-2 flex items-center gap-2">
-              <span className="text-xs text-stone-400">Showing results for</span>
-              <span className="text-xs text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                "{currentSearch}"
-              </span>
-              <button
-                onClick={() => { setCurrentSearch(''); setSearchInput(''); fetchOptions(''); }}
-                className="text-xs text-stone-400 hover:text-stone-600 ml-auto"
-              >
-                Clear
-              </button>
-            </div>
+
+          {/* Search — only on suggestions tab */}
+          {tab === 'suggestions' && (
+            <>
+              <div className="flex gap-2">
+                <input
+                  value={searchInput}
+                  onChange={e => setSearchInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                  placeholder="Thai vibes, quick pasta, high protein…"
+                  className="flex-1 bg-stone-50 text-stone-900 text-sm rounded-xl px-4 py-2.5 placeholder-stone-400 outline-none border border-stone-200 focus:border-emerald-500 transition-colors"
+                />
+                <button
+                  onClick={handleSearch}
+                  disabled={loading || !searchInput.trim()}
+                  className="px-4 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-xl disabled:opacity-40 active:scale-95 transition-all shadow-sm"
+                >
+                  Search
+                </button>
+              </div>
+              {currentSearch && (
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-xs text-stone-400">Showing results for</span>
+                  <span className="text-xs text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                    "{currentSearch}"
+                  </span>
+                  <button
+                    onClick={() => { setCurrentSearch(''); setSearchInput(''); fetchOptions(''); }}
+                    className="text-xs text-stone-400 hover:text-stone-600 ml-auto"
+                  >
+                    Clear
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
 
-        {/* Options list */}
+        {/* Content */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
-          {loading ? (
-            [0,1,2,3,4].map(i => <SkeletonCard key={i} />)
-          ) : error ? (
-            <div className="text-center py-10">
-              <div className="text-2xl mb-2">😬</div>
-              <div className="text-stone-500 text-sm mb-4">{error}</div>
-              <button
-                onClick={() => fetchOptions(currentSearch)}
-                className="px-5 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-xl shadow-sm"
-              >
-                Try again
-              </button>
+          {tab === 'suggestions' ? (
+            <>
+              {loading ? (
+                [0,1,2,3,4].map(i => <SkeletonCard key={i} />)
+              ) : error ? (
+                <div className="text-center py-10">
+                  <div className="text-2xl mb-2">😬</div>
+                  <div className="text-stone-500 text-sm mb-4">{error}</div>
+                  <button
+                    onClick={() => fetchOptions(currentSearch)}
+                    className="px-5 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-xl shadow-sm"
+                  >
+                    Try again
+                  </button>
+                </div>
+              ) : (
+                options.map((option, i) => (
+                  <OptionCard
+                    key={i}
+                    option={option}
+                    participants={participants}
+                    onSelect={() => handleSelect(option)}
+                    selecting={selectingName === option.name}
+                  />
+                ))
+              )}
+
+              {!loading && !error && options.length > 0 && (
+                <button
+                  onClick={() => fetchOptions(currentSearch)}
+                  className="w-full py-3 text-sm text-stone-500 border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors"
+                >
+                  ↺ Generate 5 new options
+                </button>
+              )}
+            </>
+          ) : favorites.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <span className="text-4xl mb-3">☆</span>
+              <p className="text-stone-500 font-medium text-sm">No favorites yet</p>
+              <p className="text-stone-400 text-xs mt-1">Star meals after eating them to save here</p>
             </div>
           ) : (
-            options.map((option, i) => (
-              <OptionCard
+            favorites.map((entry, i) => (
+              <FavoriteCard
                 key={i}
-                option={option}
-                participants={participants}
-                onSelect={() => handleSelect(option)}
-                selecting={selectingName === option.name}
+                entry={entry}
+                currentMealType={mealType}
+                onImport={() => handleImportFavorite(entry)}
               />
             ))
-          )}
-
-          {!loading && !error && options.length > 0 && (
-            <button
-              onClick={() => fetchOptions(currentSearch)}
-              className="w-full py-3 text-sm text-stone-500 border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors"
-            >
-              ↺ Generate 5 new options
-            </button>
           )}
         </div>
       </div>

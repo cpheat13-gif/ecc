@@ -18,10 +18,11 @@ const MEAL_RATIOS = {
   snack:     { calories: 0.15, protein: 0.12, carbs: 0.15, fat: 0.12 },
 };
 
-export function getMealTargets(mealType, connorTraining, isaTraining) {
-  const connorDaily = PROFILES.connor[connorTraining ? 'training' : 'rest'];
-  const isaDaily    = PROFILES.isa[isaTraining ? 'training' : 'rest'];
+export function getMealTargets(mealType, connorTraining, isaTraining, profiles = PROFILES) {
+  const connorDaily = profiles.connor[connorTraining ? 'training' : 'rest'];
+  const isaDaily    = profiles.isa[isaTraining ? 'training' : 'rest'];
   const ratio = MEAL_RATIOS[mealType] || MEAL_RATIOS.dinner;
+
   return {
     connor: {
       calories: Math.round(connorDaily.calories * ratio.calories),
@@ -38,10 +39,10 @@ export function getMealTargets(mealType, connorTraining, isaTraining) {
   };
 }
 
-export function getDailyTargets(connorTraining, isaTraining) {
+export function getDailyTargets(connorTraining, isaTraining, profiles = PROFILES) {
   return {
-    connor: PROFILES.connor[connorTraining ? 'training' : 'rest'],
-    isa:    PROFILES.isa[isaTraining ? 'training' : 'rest'],
+    connor: profiles.connor[connorTraining ? 'training' : 'rest'],
+    isa:    profiles.isa[isaTraining ? 'training' : 'rest'],
   };
 }
 
@@ -50,7 +51,9 @@ export function getDailyTotals(dayMeals) {
     connor: { calories: 0, protein: 0, carbs: 0, fat: 0 },
     isa:    { calories: 0, protein: 0, carbs: 0, fat: 0 },
   };
+
   if (!dayMeals) return totals;
+
   Object.values(dayMeals).forEach(meal => {
     if (!meal?.macros) return;
     ['connor', 'isa'].forEach(person => {
@@ -59,5 +62,6 @@ export function getDailyTotals(dayMeals) {
       });
     });
   });
+
   return totals;
 }

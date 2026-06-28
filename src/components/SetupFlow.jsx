@@ -24,7 +24,7 @@ function Toggle({ on, onToggle, colorOn = 'bg-emerald-600' }) {
   );
 }
 
-function DayStep({ config, onChange }) {
+function DayStep({ config, onChange, settings }) {
   const toggleMeal = (meal) => {
     const meals = config.meals.includes(meal)
       ? config.meals.filter(m => m !== meal)
@@ -104,7 +104,9 @@ function DayStep({ config, onChange }) {
                   <div>
                     <span className="text-stone-900 text-sm font-medium">Connor</span>
                     <span className="text-xs text-stone-400 ml-2">
-                      {config.connorTraining ? '2,750 kcal' : '2,450 kcal'}
+                      {config.connorTraining
+                        ? `${settings.connor.training.calories.toLocaleString()} kcal`
+                        : `${settings.connor.rest.calories.toLocaleString()} kcal`}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -122,7 +124,9 @@ function DayStep({ config, onChange }) {
                   <div>
                     <span className="text-stone-900 text-sm font-medium">Isa</span>
                     <span className="text-xs text-stone-400 ml-2">
-                      {config.isaTraining ? '1,700 kcal' : '1,500 kcal'}
+                      {config.isaTraining
+                        ? `${settings.isa.training.calories.toLocaleString()} kcal`
+                        : `${settings.isa.rest.calories.toLocaleString()} kcal`}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -188,6 +192,7 @@ function ReviewStep({ weekConfig, onEdit }) {
 
 export default function SetupFlow() {
   const { state, dispatch } = useApp();
+  const { settings } = state;
 
   const initConfig = Object.fromEntries(
     DAYS.map(d => [d, {
@@ -256,7 +261,7 @@ export default function SetupFlow() {
       {isReview ? (
         <ReviewStep weekConfig={weekConfig} onEdit={(i) => setStep(i)} />
       ) : (
-        <DayStep config={weekConfig[day]} onChange={updateDay} />
+        <DayStep config={weekConfig[day]} onChange={updateDay} settings={settings} />
       )}
 
       {/* Nav */}

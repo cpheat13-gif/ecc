@@ -31,7 +31,7 @@ export default function DayView({ day }) {
   const dayMeals  = state.mealPlan[day] || {};
 
   const totals  = getDailyTotals(dayMeals);
-  const targets = getDailyTargets(dayConfig.connorTraining, dayConfig.isaTraining);
+  const targets = getDailyTargets(dayConfig.connorTraining, dayConfig.isaTraining, state.settings);
 
   const orderedMealTypes = MEAL_TYPES.filter(m => dayConfig.meals.includes(m));
 
@@ -52,14 +52,14 @@ export default function DayView({ day }) {
           <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
             dayConfig.connorTraining ? 'bg-blue-50 text-blue-600' : 'bg-stone-100 text-stone-500'
           }`}>
-            Connor: {dayConfig.connorTraining ? '💪 Training' : '🛌 Rest'}
+            Connor: {dayConfig.connorTraining ? '💪 Training' : '🛋 Rest'}
           </span>
         )}
         {dayConfig.participants !== 'connor' && (
           <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
             dayConfig.isaTraining ? 'bg-violet-50 text-violet-600' : 'bg-stone-100 text-stone-500'
           }`}>
-            Isa: {dayConfig.isaTraining ? '💪 Training' : '🛌 Rest'}
+            Isa: {dayConfig.isaTraining ? '💪 Training' : '🛋 Rest'}
           </span>
         )}
       </div>

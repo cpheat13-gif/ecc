@@ -3,6 +3,7 @@ import SetupFlow from './components/SetupFlow';
 import Dashboard from './components/Dashboard';
 import ShoppingList from './components/ShoppingList';
 import LogView from './components/LogView';
+import SettingsView from './components/SettingsView';
 import RecipeModal from './components/RecipeModal';
 import MealOptionsSheet from './components/MealOptionsSheet';
 import BottomNav from './components/BottomNav';
@@ -14,12 +15,15 @@ function AppShell() {
     return <SetupFlow />;
   }
 
+  const showNav = state.view !== 'settings';
+
   return (
     <div className="max-w-[430px] mx-auto min-h-screen relative">
       {state.view === 'dashboard' && <Dashboard />}
       {state.view === 'shopping'  && <ShoppingList />}
       {state.view === 'log'       && <LogView />}
-      <BottomNav />
+      {state.view === 'settings'  && <SettingsView />}
+      {showNav && <BottomNav />}
       {state.selectedMeal && <RecipeModal />}
       {state.optionsSheet && <MealOptionsSheet />}
     </div>
