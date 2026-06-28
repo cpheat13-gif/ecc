@@ -31,7 +31,7 @@ export default function DayView({ day }) {
   const dayMeals  = state.mealPlan[day] || {};
 
   const totals  = getDailyTotals(dayMeals);
-  const targets = getDailyTargets(dayConfig.connorTraining, dayConfig.isaTraining);
+  const targets = getDailyTargets(dayConfig.connorTraining, dayConfig.isaTraining, state.settings);
 
   const orderedMealTypes = MEAL_TYPES.filter(m => dayConfig.meals.includes(m));
 

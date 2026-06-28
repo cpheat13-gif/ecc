@@ -28,6 +28,17 @@ function buildMealPlan(weekConfig) {
   return plan;
 }
 
+const DEFAULT_SETTINGS = {
+  connor: {
+    training: { calories: 2750, protein: 170, carbs: 310, fat: 92 },
+    rest:     { calories: 2450, protein: 170, carbs: 265, fat: 79 },
+  },
+  isa: {
+    training: { calories: 1700, protein: 80, carbs: 190, fat: 69 },
+    rest:     { calories: 1500, protein: 80, carbs: 162, fat: 59 },
+  },
+};
+
 const INITIAL_STATE = {
   setupComplete: false,
   view: 'setup',
@@ -39,6 +50,7 @@ const INITIAL_STATE = {
   optionsSheet: null,
   shoppingChecked: {},
   starredMeals: {},
+  settings: DEFAULT_SETTINGS,
 };
 
 function reducer(state, action) {
@@ -120,6 +132,9 @@ function reducer(state, action) {
 
     case 'CLEAR_SHOPPING':
       return { ...state, shoppingChecked: {} };
+
+    case 'UPDATE_SETTINGS':
+      return { ...state, settings: action.settings };
 
     case 'RESET':
       return { ...INITIAL_STATE };

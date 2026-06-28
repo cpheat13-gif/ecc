@@ -23,10 +23,10 @@ export default function Dashboard() {
       <div className="shrink-0 px-4 pt-12 pb-2 flex items-center justify-between">
         <h1 className="text-xl font-bold text-stone-900">This Week</h1>
         <button
-          onClick={() => dispatch({ type: 'RESET' })}
-          className="text-xs text-stone-500 hover:text-stone-700 transition-colors px-3 py-1.5 rounded-lg bg-stone-100"
+          onClick={() => dispatch({ type: 'SET_VIEW', view: 'settings' })}
+          className="text-xs text-stone-500 hover:text-stone-700 transition-colors px-3 py-1.5 rounded-lg bg-stone-100 flex items-center gap-1.5"
         >
-          ⚙ Reconfigure
+          <span>⚙</span> Settings
         </button>
       </div>
 
