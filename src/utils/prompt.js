@@ -38,8 +38,11 @@ Return this exact JSON structure:
 For wholeFoodsTips: include 2-3 short, practical tips for shopping this recipe at Whole Foods — which section to find key ingredients, what to look for when buying (e.g. freshness, cut, form), or any helpful store-specific notes. One sentence each.`;
 }
 
-export function buildOptionsPrompt({ mealType, participants, targets, searchTerm }) {
-  const vibe = searchTerm ? `\nThe user is looking for this vibe/style: "${searchTerm}"` : '';
+export function buildOptionsPrompt({ mealType, participants, targets, searchTerm, excludeNames = [] }) {
+  const vibe    = searchTerm    ? `\nThe user is looking for this vibe/style: "${searchTerm}"` : '';
+  const exclude = excludeNames.length > 0
+    ? `\nDo NOT suggest any of these already-shown meals: ${excludeNames.map(n => `"${n}"`).join(', ')}`
+    : '';
 
   const macroLines = [];
   if (participants !== 'isa') {
@@ -51,7 +54,7 @@ export function buildOptionsPrompt({ mealType, participants, targets, searchTerm
     macroLines.push(`Isa: ${i.calories} kcal / ${i.protein}g protein / ${i.carbs}g carbs / ${i.fat}g fat`);
   }
 
-  return `Return JSON only. No explanation. Generate 5 varied ${mealType} recipe options for a meal planner.${vibe}
+  return `Return JSON only. No explanation. Generate 5 varied ${mealType} recipe options for a meal planner.${vibe}${exclude}
 
 Macro targets per serving:
 ${macroLines.join('\n')}

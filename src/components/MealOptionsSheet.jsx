@@ -128,6 +128,7 @@ export default function MealOptionsSheet() {
   const [searchInput, setSearchInput]     = useState('');
   const [currentSearch, setCurrentSearch] = useState('');
   const [selectingName, setSelectingName] = useState(null);
+  const [seenNames, setSeenNames]         = useState([]);
 
   const favorites = Object.values(starredMeals || {}).sort((a, b) => {
     if (a.mealType === mealType && b.mealType !== mealType) return -1;
@@ -135,12 +136,12 @@ export default function MealOptionsSheet() {
     return b.starredAt - a.starredAt;
   });
 
-  const fetchOptions = async (searchTerm = '') => {
+  const fetchOptions = async (searchTerm = '', exclude = []) => {
     setLoading(true);
     setError(null);
     setOptions([]);
     try {
-      const prompt = buildOptionsPrompt({ mealType, participants, targets, searchTerm });
+      const prompt = buildOptionsPrompt({ mealType, participants, targets, searchTerm, excludeNames: exclude });
       const res  = await fetch('/api/generate-meal', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -148,7 +149,9 @@ export default function MealOptionsSheet() {
       });
       const data = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
       if (!res.ok) throw new Error(data.error || 'Failed to generate options');
-      setOptions(Array.isArray(data) ? data : []);
+      const fresh = Array.isArray(data) ? data : [];
+      setOptions(fresh);
+      setSeenNames(prev => [...prev, ...fresh.map(o => o.name)]);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -161,7 +164,8 @@ export default function MealOptionsSheet() {
   const handleSearch = () => {
     const term = searchInput.trim();
     setCurrentSearch(term);
-    fetchOptions(term);
+    setSeenNames([]);
+    fetchOptions(term, []);
   };
 
   const handleSelect = async (option) => {
@@ -256,7 +260,7 @@ export default function MealOptionsSheet() {
                     "{currentSearch}"
                   </span>
                   <button
-                    onClick={() => { setCurrentSearch(''); setSearchInput(''); fetchOptions(''); }}
+                    onClick={() => { setCurrentSearch(''); setSearchInput(''); setSeenNames([]); fetchOptions('', []); }}
                     className="text-xs text-stone-400 hover:text-stone-600 ml-auto"
                   >
                     Clear
@@ -277,7 +281,7 @@ export default function MealOptionsSheet() {
                   <div className="text-2xl mb-2">😬</div>
                   <div className="text-stone-500 text-sm mb-4">{error}</div>
                   <button
-                    onClick={() => fetchOptions(currentSearch)}
+                    onClick={() => fetchOptions(currentSearch, seenNames)}
                     className="px-5 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-xl shadow-sm"
                   >
                     Try again
@@ -297,7 +301,7 @@ export default function MealOptionsSheet() {
 
               {!loading && !error && options.length > 0 && (
                 <button
-                  onClick={() => fetchOptions(currentSearch)}
+                  onClick={() => fetchOptions(currentSearch, seenNames)}
                   className="w-full py-3 text-sm text-stone-500 font-medium border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors"
                 >
                   ↺ Generate 5 new options
