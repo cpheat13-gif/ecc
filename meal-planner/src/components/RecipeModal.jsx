@@ -209,20 +209,18 @@ export default function RecipeModal() {
             </section>
           )}
 
-          {/* Whole Foods brands */}
-          {recipe.wholeFoodsBrands?.length > 0 && (
+          {/* Whole Foods tips */}
+          {recipe.wholeFoodsTips?.length > 0 && (
             <section>
-              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-                Whole Foods / 365 Brands
+              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                Whole Foods Shopping Tips
               </h3>
-              <div className="flex flex-wrap gap-2">
-                {recipe.wholeFoodsBrands.map((brand, i) => (
-                  <span
-                    key={i}
-                    className="text-xs bg-slate-800 border border-slate-700 text-slate-400 px-2.5 py-1 rounded-full"
-                  >
-                    {brand}
-                  </span>
+              <div className="space-y-2">
+                {recipe.wholeFoodsTips.map((tip, i) => (
+                  <div key={i} className="flex gap-2 text-sm text-slate-400">
+                    <span className="shrink-0 text-emerald-500">•</span>
+                    <span>{tip}</span>
+                  </div>
                 ))}
               </div>
             </section>

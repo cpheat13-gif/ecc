@@ -13,7 +13,7 @@ Dietary rules:
 - Whole natural foods only. No artificial ingredients, preservatives, or highly processed products.
 - Moderate sodium, potassium, and phosphorus throughout (Isa has a preventative kidney health consideration).
 - Isa's protein must not exceed 80g/day total.
-- Ingredients should be available at Whole Foods. Prefer 365 brand for staples. Keep cost-efficient — bulk proteins, seasonal veg, simple staples.
+- All ingredients must be available at Whole Foods. Keep cost-efficient — bulk proteins, seasonal veg, simple staples.
 - ${portionNote}
 
 Macro targets for this meal:
@@ -30,9 +30,11 @@ Return this exact JSON structure:
     "connor": {"calories": 0, "protein": 0, "carbs": 0, "fat": 0},
     "isa": {"calories": 0, "protein": 0, "carbs": 0, "fat": 0}
   },
-  "wholeFoodsBrands": [],
+  "wholeFoodsTips": [],
   "highSodiumFlag": false
-}`;
+}
+
+For wholeFoodsTips: include 2-3 short, practical tips for shopping this recipe at Whole Foods — which section to find key ingredients, what to look for when buying (e.g. freshness, cut, form), or any helpful store-specific notes. One sentence each.`;
 }
 
 export function buildOptionsPrompt({ mealType, participants, targets, searchTerm }) {
