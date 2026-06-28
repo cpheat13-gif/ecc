@@ -114,7 +114,7 @@ function FavoriteCard({ entry, onImport, currentMealType }) {
 
 export default function MealOptionsSheet() {
   const { state, dispatch } = useApp();
-  const { optionsSheet, weekConfig, starredMeals, settings } = state;
+  const { optionsSheet, weekConfig, starredMeals, settings, customRecipes } = state;
   const { day, mealType } = optionsSheet;
 
   const dayConfig    = weekConfig[day];
@@ -189,6 +189,11 @@ export default function MealOptionsSheet() {
     dispatch({ type: 'CLOSE_OPTIONS' });
   };
 
+  const handleUseCustomRecipe = (recipe) => {
+    dispatch({ type: 'SET_MEAL', day, mealType, recipe: { ...recipe, mealType } });
+    dispatch({ type: 'CLOSE_OPTIONS' });
+  };
+
   const close = () => dispatch({ type: 'CLOSE_OPTIONS' });
 
   return (
@@ -226,7 +231,15 @@ export default function MealOptionsSheet() {
                 tab === 'suggestions' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500'
               }`}
             >
-              AI Suggestions
+              AI
+            </button>
+            <button
+              onClick={() => setTab('myrecipes')}
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                tab === 'myrecipes' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500'
+              }`}
+            >
+              My Recipes {(customRecipes || []).length > 0 && `(${customRecipes.length})`}
             </button>
             <button
               onClick={() => setTab('favorites')}
@@ -234,7 +247,7 @@ export default function MealOptionsSheet() {
                 tab === 'favorites' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500'
               }`}
             >
-              Favorites {favorites.length > 0 && `(${favorites.length})`}
+              Starred {favorites.length > 0 && `(${favorites.length})`}
             </button>
           </div>
 
@@ -312,6 +325,47 @@ export default function MealOptionsSheet() {
                 </button>
               )}
             </>
+          ) : tab === 'myrecipes' ? (
+            (customRecipes || []).length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <p className="text-stone-500 font-semibold text-sm">No saved recipes yet</p>
+                <p className="text-stone-400 text-xs mt-1">Add recipes in the Recipes tab</p>
+              </div>
+            ) : (
+              (customRecipes || []).map((recipe) => (
+                <button
+                  key={recipe.id}
+                  onClick={() => handleUseCustomRecipe(recipe)}
+                  className="w-full text-left bg-white rounded-2xl p-4 border border-stone-100 shadow-[0_1px_8px_rgba(0,0,0,0.06)] active:scale-[0.98] transition-transform"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-stone-900 font-semibold leading-snug truncate">{recipe.name}</p>
+                      <p className="text-xs text-stone-400 font-medium mt-0.5">{recipe.cookTime}</p>
+                    </div>
+                    <span className="shrink-0 px-3 py-2 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-xl">Use</span>
+                  </div>
+                  {recipe.macros && (
+                    <div className="flex gap-2 mt-3">
+                      {recipe.macros.connor && (
+                        <div className="flex-1 bg-sky-50 rounded-xl px-3 py-2">
+                          <div className="text-[10px] font-bold uppercase tracking-widest text-sky-500 mb-0.5">Connor</div>
+                          <div className="text-xs text-sky-700 font-bold tabular-nums">{recipe.macros.connor.calories} kcal</div>
+                          <div className="text-[10px] text-sky-500">P {recipe.macros.connor.protein}g</div>
+                        </div>
+                      )}
+                      {recipe.macros.isa && (
+                        <div className="flex-1 bg-violet-50 rounded-xl px-3 py-2">
+                          <div className="text-[10px] font-bold uppercase tracking-widest text-violet-500 mb-0.5">Isa</div>
+                          <div className="text-xs text-violet-700 font-bold tabular-nums">{recipe.macros.isa.calories} kcal</div>
+                          <div className="text-[10px] text-violet-500">P {recipe.macros.isa.protein}g</div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </button>
+              ))
+            )
           ) : favorites.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <span className="text-4xl mb-3">☆</span>
