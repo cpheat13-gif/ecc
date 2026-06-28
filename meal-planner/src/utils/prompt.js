@@ -14,6 +14,7 @@ Dietary rules:
 - Moderate sodium, potassium, and phosphorus throughout (Isa has a preventative kidney health consideration).
 - Isa's protein must not exceed 80g/day total.
 - All ingredients must be available at Whole Foods. Keep cost-efficient — bulk proteins, seasonal veg, simple staples.
+- Use practical US store units for all ingredient quantities (lbs, oz, cups, tbsp, tsp, whole count, fl oz, etc.). Do not use grams or milliliters.
 - ${portionNote}
 
 Macro targets for this meal:

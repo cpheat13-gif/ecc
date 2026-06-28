@@ -138,9 +138,6 @@ export default function ShoppingList() {
               />
             ))}
 
-            <p className="text-center text-xs text-slate-600 pt-2">
-              Prefer 365 brand for staples at Whole Foods
-            </p>
           </div>
         </>
       )}
