@@ -38,8 +38,21 @@ Return this exact JSON structure:
 For wholeFoodsTips: include 2-3 short, practical tips for shopping this recipe at Whole Foods — which section to find key ingredients, what to look for when buying (e.g. freshness, cut, form), or any helpful store-specific notes. One sentence each.`;
 }
 
+const CUISINE_POOLS = [
+  ['Mediterranean', 'Japanese', 'Mexican', 'Indian', 'American'],
+  ['Thai', 'Italian', 'Korean', 'Greek', 'Middle Eastern'],
+  ['Vietnamese', 'French', 'Ethiopian', 'Peruvian', 'Spanish'],
+  ['Moroccan', 'Caribbean', 'Chinese', 'Turkish', 'Cajun'],
+  ['Lebanese', 'Brazilian', 'Indonesian', 'Scandinavian', 'West African'],
+];
+
+function randomCuisines() {
+  return CUISINE_POOLS[Math.floor(Math.random() * CUISINE_POOLS.length)];
+}
+
 export function buildOptionsPrompt({ mealType, participants, targets, searchTerm, excludeNames = [] }) {
-  const vibe    = searchTerm    ? `\nThe user is looking for this vibe/style: "${searchTerm}"` : '';
+  const cuisines = randomCuisines();
+  const vibe    = searchTerm ? `\nThe user is looking for this vibe/style: "${searchTerm}"` : '';
   const exclude = excludeNames.length > 0
     ? `\nDo NOT suggest any of these already-shown meals: ${excludeNames.map(n => `"${n}"`).join(', ')}`
     : '';
@@ -62,7 +75,8 @@ ${macroLines.join('\n')}
 Rules:
 - Whole natural foods only, available at Whole Foods
 - Moderate sodium (Isa has a kidney health consideration)
-- Make the 5 options clearly different in cuisine, cooking style, and ingredients
+- Draw inspiration from these cuisines, one per option: ${cuisines.join(', ')}
+- Each option must use a distinctly different protein, cooking method, and flavor profile
 
 Return a JSON array of exactly 5 objects, no markdown:
 [
