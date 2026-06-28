@@ -67,6 +67,10 @@ export function buildOptionsPrompt({ mealType, participants, targets, searchTerm
     macroLines.push(`Isa: ${i.calories} kcal / ${i.protein}g protein / ${i.carbs}g carbs / ${i.fat}g fat`);
   }
 
+  const varietyRule = searchTerm
+    ? `- All 5 options should be inspired by the requested vibe/style, each using a distinctly different dish, protein, and cooking method`
+    : `- Draw inspiration from these cuisines, one per option: ${cuisines.join(', ')}\n- Each option must use a distinctly different protein, cooking method, and flavor profile`;
+
   return `Return JSON only. No explanation. Generate 5 varied ${mealType} recipe options for a meal planner.${vibe}${exclude}
 
 Macro targets per serving:
@@ -75,8 +79,7 @@ ${macroLines.join('\n')}
 Rules:
 - Whole natural foods only, available at Whole Foods
 - Moderate sodium (Isa has a kidney health consideration)
-- Draw inspiration from these cuisines, one per option: ${cuisines.join(', ')}
-- Each option must use a distinctly different protein, cooking method, and flavor profile
+- ${varietyRule}
 
 Return a JSON array of exactly 5 objects, no markdown:
 [
