@@ -17,33 +17,33 @@ function CategorySection({ category, items, checked, onToggle }) {
   const doneCount = items.filter(i => checked[i.key]).length;
 
   return (
-    <div className="rounded-2xl bg-slate-800 border border-slate-700 overflow-hidden">
+    <div className="rounded-2xl bg-white border border-stone-200 overflow-hidden shadow-sm">
       <button
         onClick={() => setOpen(o => !o)}
         className="w-full flex items-center justify-between px-4 py-3 text-left"
       >
         <div className="flex items-center gap-2">
           <span>{CATEGORY_ICONS[category] || '📦'}</span>
-          <span className="font-semibold text-slate-200 text-sm">{category}</span>
-          <span className="text-xs text-slate-500 bg-slate-700 px-1.5 py-0.5 rounded-full">
+          <span className="font-semibold text-stone-800 text-sm">{category}</span>
+          <span className="text-xs text-stone-400 bg-stone-100 px-1.5 py-0.5 rounded-full">
             {items.length}
           </span>
         </div>
         <div className="flex items-center gap-3">
           {doneCount > 0 && (
-            <span className="text-xs text-emerald-400">{doneCount}/{items.length}</span>
+            <span className="text-xs text-emerald-600">{doneCount}/{items.length}</span>
           )}
-          <span className="text-slate-500 text-xs">{open ? '▲' : '▼'}</span>
+          <span className="text-stone-400 text-xs">{open ? '▲' : '▼'}</span>
         </div>
       </button>
 
       {open && (
-        <div className="border-t border-slate-700">
+        <div className="border-t border-stone-100">
           {items.map((item, i) => (
             <label
               key={item.key}
               className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${
-                i !== 0 ? 'border-t border-slate-700/50' : ''
+                i !== 0 ? 'border-t border-stone-100' : ''
               } ${checked[item.key] ? 'opacity-50' : ''}`}
             >
               <div
@@ -51,20 +51,20 @@ function CategorySection({ category, items, checked, onToggle }) {
                 className={`shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
                   checked[item.key]
                     ? 'bg-emerald-500 border-emerald-500'
-                    : 'border-slate-600'
+                    : 'border-stone-300'
                 }`}
               >
                 {checked[item.key] && <span className="text-white text-xs">✓</span>}
               </div>
               <div className="flex-1 min-w-0">
-                <span className={`text-sm ${checked[item.key] ? 'line-through text-slate-500' : 'text-slate-200'}`}>
+                <span className={`text-sm ${checked[item.key] ? 'line-through text-stone-400' : 'text-stone-800'}`}>
                   {item.item}
                 </span>
                 {item.occurrences > 1 && (
-                  <span className="ml-1.5 text-xs text-slate-500">×{item.occurrences} meals</span>
+                  <span className="ml-1.5 text-xs text-stone-400">×{item.occurrences} meals</span>
                 )}
               </div>
-              <span className="shrink-0 text-xs text-slate-500">
+              <span className="shrink-0 text-xs text-stone-400">
                 {item.quantity} {item.unit}
               </span>
             </label>
@@ -93,8 +93,8 @@ export default function ShoppingList() {
       {/* Header */}
       <div className="shrink-0 px-4 pt-12 pb-4 flex items-end justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-100">Shopping List</h1>
-          <p className="text-sm text-slate-400 mt-0.5">
+          <h1 className="text-xl font-bold text-stone-900">Shopping List</h1>
+          <p className="text-sm text-stone-500 mt-0.5">
             {totalItems === 0
               ? 'Generate meals to build your list'
               : `${totalItems} items · ${doneCount} checked`}
@@ -103,7 +103,7 @@ export default function ShoppingList() {
         {doneCount > 0 && (
           <button
             onClick={handleClear}
-            className="text-xs text-slate-500 hover:text-rose-400 transition-colors"
+            className="text-xs text-stone-400 hover:text-rose-500 transition-colors"
           >
             Clear all
           </button>
@@ -113,13 +113,13 @@ export default function ShoppingList() {
       {totalItems === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center text-center px-8">
           <div className="text-5xl mb-4">🛒</div>
-          <p className="text-slate-400">Generate meals in the Week view and they'll appear here.</p>
+          <p className="text-stone-500">Generate meals in the Week view and they'll appear here.</p>
         </div>
       ) : (
         <>
           {/* Progress bar */}
           <div className="px-4 mb-4 shrink-0">
-            <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-stone-200 rounded-full overflow-hidden">
               <div
                 className="h-full bg-emerald-500 rounded-full transition-all duration-300"
                 style={{ width: totalItems ? `${(doneCount / totalItems) * 100}%` : '0%' }}
