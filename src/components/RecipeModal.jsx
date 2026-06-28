@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
+import CookingMode from './CookingMode';
 
 const CATEGORY_ICONS = {
   'Proteins':        '🥩',
@@ -54,6 +55,7 @@ function groupIngredients(ingredients) {
 export default function RecipeModal() {
   const { state, dispatch } = useApp();
   const { selectedMeal } = state;
+  const [cooking, setCooking] = useState(false);
 
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') dispatch({ type: 'CLOSE_RECIPE' }); };
@@ -61,13 +63,14 @@ export default function RecipeModal() {
     return () => document.removeEventListener('keydown', handler);
   }, [dispatch]);
 
+  // Reset cooking mode when recipe changes
+  useEffect(() => { setCooking(false); }, [selectedMeal]);
+
   if (!selectedMeal) return null;
 
   const { day, type: mealType, recipe } = selectedMeal;
-  const isGenerating =
-    state.generatingMeal?.day === day && state.generatingMeal?.type === mealType;
 
-  const starKey  = `${day}-${mealType}`;
+  const starKey   = `${day}-${mealType}`;
   const isStarred = !!state.starredMeals?.[starKey];
 
   const handleStar = () => {
@@ -84,6 +87,17 @@ export default function RecipeModal() {
 
   const grouped  = groupIngredients(recipe.ingredients || []);
   const portions = mealType === 'dinner' ? '4 portions (2 dinner + 2 lunch)' : '2 portions';
+  const hasSteps = recipe.steps?.length > 0;
+
+  if (cooking && hasSteps) {
+    return (
+      <CookingMode
+        steps={recipe.steps}
+        recipeName={recipe.name}
+        onClose={() => setCooking(false)}
+      />
+    );
+  }
 
   return (
     <div
@@ -93,10 +107,12 @@ export default function RecipeModal() {
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => dispatch({ type: 'CLOSE_RECIPE' })} />
 
       <div className="relative bg-white rounded-t-3xl max-h-[90vh] flex flex-col shadow-2xl">
+        {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-2 shrink-0">
           <div className="w-10 h-1 bg-stone-200 rounded-full" />
         </div>
 
+        {/* Header */}
         <div className="px-5 pb-4 shrink-0 border-b border-stone-100">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
@@ -135,20 +151,36 @@ export default function RecipeModal() {
             </div>
           </div>
 
-          <button
-            onClick={handleSwap}
-            className="mt-3 w-full py-2.5 rounded-xl border border-emerald-200 bg-emerald-50/50 text-emerald-700 text-sm font-semibold transition-colors active:bg-emerald-100"
-          >
-            ↺ Swap for a different meal
-          </button>
+          <div className="mt-3 flex gap-2">
+            {hasSteps && (
+              <button
+                onClick={() => setCooking(true)}
+                className="flex-1 py-2.5 rounded-xl bg-stone-900 text-white text-sm font-semibold transition-colors active:bg-stone-800 flex items-center justify-center gap-2"
+              >
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="3,1 14,7.5 3,14" fill="currentColor" stroke="none" />
+                </svg>
+                Start Cooking
+              </button>
+            )}
+            <button
+              onClick={handleSwap}
+              className={`py-2.5 rounded-xl border border-emerald-200 bg-emerald-50/50 text-emerald-700 text-sm font-semibold transition-colors active:bg-emerald-100 ${hasSteps ? 'px-4' : 'flex-1'}`}
+            >
+              ↺ Swap
+            </button>
+          </div>
         </div>
 
+        {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto px-5 pb-10 space-y-6 pt-5">
+          {/* Macros */}
           <section>
             <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Macros per serving</p>
             <MacroGrid macros={recipe.macros} />
           </section>
 
+          {/* Ingredients */}
           <section>
             <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Ingredients</p>
             <div className="space-y-5">
@@ -173,7 +205,8 @@ export default function RecipeModal() {
             </div>
           </section>
 
-          {recipe.steps?.length > 0 && (
+          {/* Method */}
+          {hasSteps && (
             <section>
               <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4">Method</p>
               <ol className="space-y-4">
@@ -189,6 +222,7 @@ export default function RecipeModal() {
             </section>
           )}
 
+          {/* Whole Foods tips */}
           {recipe.wholeFoodsTips?.length > 0 && (
             <section>
               <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Shopping Tips</p>
