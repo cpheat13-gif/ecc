@@ -35,9 +35,22 @@ function StarIcon({ active }) {
   );
 }
 
+function BookIcon({ active }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 3h11a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill={active ? 'currentColor' : 'none'} fillOpacity={active ? 0.08 : 0} />
+      <line x1="2" y1="8" x2="17" y2="8" />
+      <line x1="6" y1="3" x2="6" y2="8" />
+      {active && <line x1="6" y1="12" x2="13" y2="12" strokeWidth="2" />}
+      {active && <line x1="6" y1="15.5" x2="11" y2="15.5" strokeWidth="2" />}
+    </svg>
+  );
+}
+
 const TABS = [
   { id: 'dashboard', label: 'Week',     Icon: CalendarIcon },
   { id: 'shopping',  label: 'Shopping', Icon: CartIcon },
+  { id: 'recipes',   label: 'Recipes',  Icon: BookIcon },
   { id: 'log',       label: 'Log',      Icon: StarIcon },
 ];
 

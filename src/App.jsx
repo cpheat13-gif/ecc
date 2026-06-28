@@ -4,6 +4,7 @@ import Dashboard from './components/Dashboard';
 import ShoppingList from './components/ShoppingList';
 import LogView from './components/LogView';
 import SettingsView from './components/SettingsView';
+import RecipesView from './components/RecipesView';
 import RecipeModal from './components/RecipeModal';
 import MealOptionsSheet from './components/MealOptionsSheet';
 import BottomNav from './components/BottomNav';
@@ -21,6 +22,7 @@ function AppShell() {
     <div className="max-w-[430px] mx-auto min-h-screen relative">
       {state.view === 'dashboard' && <Dashboard />}
       {state.view === 'shopping'  && <ShoppingList />}
+      {state.view === 'recipes'   && <RecipesView />}
       {state.view === 'log'       && <LogView />}
       {state.view === 'settings'  && <SettingsView />}
       {showNav && <BottomNav />}

@@ -51,6 +51,7 @@ const INITIAL_STATE = {
   shoppingChecked: {},
   starredMeals: {},
   settings: DEFAULT_SETTINGS,
+  customRecipes: [],
 };
 
 function reducer(state, action) {
@@ -135,6 +136,14 @@ function reducer(state, action) {
 
     case 'UPDATE_SETTINGS':
       return { ...state, settings: action.settings };
+
+    case 'ADD_CUSTOM_RECIPE': {
+      const recipe = { ...action.recipe, id: Date.now(), savedAt: Date.now() };
+      return { ...state, customRecipes: [recipe, ...(state.customRecipes || [])] };
+    }
+
+    case 'DELETE_CUSTOM_RECIPE':
+      return { ...state, customRecipes: (state.customRecipes || []).filter(r => r.id !== action.id) };
 
     case 'RESET':
       return { ...INITIAL_STATE };

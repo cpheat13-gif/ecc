@@ -63,12 +63,11 @@ export default function RecipeModal() {
     return () => document.removeEventListener('keydown', handler);
   }, [dispatch]);
 
-  // Reset cooking mode when recipe changes
   useEffect(() => { setCooking(false); }, [selectedMeal]);
 
   if (!selectedMeal) return null;
 
-  const { day, type: mealType, recipe } = selectedMeal;
+  const { day, type: mealType, recipe, isLibrary } = selectedMeal;
 
   const starKey   = `${day}-${mealType}`;
   const isStarred = !!state.starredMeals?.[starKey];
@@ -83,6 +82,11 @@ export default function RecipeModal() {
   const handleSwap = () => {
     dispatch({ type: 'CLOSE_RECIPE' });
     dispatch({ type: 'OPEN_OPTIONS', day, mealType });
+  };
+
+  const handleDelete = () => {
+    dispatch({ type: 'DELETE_CUSTOM_RECIPE', id: recipe.id });
+    dispatch({ type: 'CLOSE_RECIPE' });
   };
 
   const grouped  = groupIngredients(recipe.ingredients || []);
@@ -107,18 +111,16 @@ export default function RecipeModal() {
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => dispatch({ type: 'CLOSE_RECIPE' })} />
 
       <div className="relative bg-white rounded-t-3xl max-h-[90vh] flex flex-col shadow-2xl">
-        {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-2 shrink-0">
           <div className="w-10 h-1 bg-stone-200 rounded-full" />
         </div>
 
-        {/* Header */}
         <div className="px-5 pb-4 shrink-0 border-b border-stone-100">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1.5">
                 <span className="text-[10px] font-semibold uppercase tracking-widest text-stone-400 capitalize">
-                  {day} · {mealType}
+                  {isLibrary ? 'My Recipes' : `${day} · ${mealType}`}
                 </span>
                 {recipe.highSodiumFlag && (
                   <span className="text-[10px] bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded-full font-semibold">
@@ -129,19 +131,21 @@ export default function RecipeModal() {
               <h2 className="text-xl font-bold text-stone-900 leading-tight">{recipe.name}</h2>
               <div className="flex items-center gap-4 mt-1.5">
                 <span className="text-sm text-stone-400 font-medium">{recipe.cookTime}</span>
-                <span className="text-sm text-stone-400 font-medium">{portions}</span>
+                {!isLibrary && <span className="text-sm text-stone-400 font-medium">{portions}</span>}
               </div>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
-              <button
-                onClick={handleStar}
-                className={`w-9 h-9 flex items-center justify-center rounded-xl transition-colors text-lg ${
-                  isStarred ? 'bg-amber-50 text-amber-500' : 'bg-stone-100 text-stone-400'
-                }`}
-                title={isStarred ? 'Remove from log' : 'Log this meal'}
-              >
-                {isStarred ? '★' : '☆'}
-              </button>
+              {!isLibrary && (
+                <button
+                  onClick={handleStar}
+                  className={`w-9 h-9 flex items-center justify-center rounded-xl transition-colors text-lg ${
+                    isStarred ? 'bg-amber-50 text-amber-500' : 'bg-stone-100 text-stone-400'
+                  }`}
+                  title={isStarred ? 'Remove from log' : 'Log this meal'}
+                >
+                  {isStarred ? '★' : '☆'}
+                </button>
+              )}
               <button
                 onClick={() => dispatch({ type: 'CLOSE_RECIPE' })}
                 className="w-9 h-9 flex items-center justify-center rounded-xl bg-stone-100 text-stone-500 hover:text-stone-800 transition-colors"
@@ -163,24 +167,30 @@ export default function RecipeModal() {
                 Start Cooking
               </button>
             )}
-            <button
-              onClick={handleSwap}
-              className={`py-2.5 rounded-xl border border-emerald-200 bg-emerald-50/50 text-emerald-700 text-sm font-semibold transition-colors active:bg-emerald-100 ${hasSteps ? 'px-4' : 'flex-1'}`}
-            >
-              ↺ Swap
-            </button>
+            {isLibrary ? (
+              <button
+                onClick={handleDelete}
+                className={`py-2.5 rounded-xl border border-red-200 bg-red-50/50 text-red-500 text-sm font-semibold transition-colors active:bg-red-100 ${hasSteps ? 'px-4' : 'flex-1'}`}
+              >
+                Delete
+              </button>
+            ) : (
+              <button
+                onClick={handleSwap}
+                className={`py-2.5 rounded-xl border border-emerald-200 bg-emerald-50/50 text-emerald-700 text-sm font-semibold transition-colors active:bg-emerald-100 ${hasSteps ? 'px-4' : 'flex-1'}`}
+              >
+                ↺ Swap
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto px-5 pb-10 space-y-6 pt-5">
-          {/* Macros */}
           <section>
             <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Macros per serving</p>
             <MacroGrid macros={recipe.macros} />
           </section>
 
-          {/* Ingredients */}
           <section>
             <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Ingredients</p>
             <div className="space-y-5">
@@ -205,7 +215,6 @@ export default function RecipeModal() {
             </div>
           </section>
 
-          {/* Method */}
           {hasSteps && (
             <section>
               <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4">Method</p>
@@ -222,7 +231,6 @@ export default function RecipeModal() {
             </section>
           )}
 
-          {/* Whole Foods tips */}
           {recipe.wholeFoodsTips?.length > 0 && (
             <section>
               <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Shopping Tips</p>
