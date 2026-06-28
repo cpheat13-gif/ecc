@@ -23,18 +23,18 @@ export default function MealCard({ day, mealType, recipe }) {
 
   if (!recipe) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-600 bg-slate-800/40 p-4">
+      <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-4">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">
+            <div className="text-xs font-medium text-stone-400 uppercase tracking-wider mb-1">
               {MEAL_LABEL[mealType]}
             </div>
-            <div className="text-sm text-slate-400">No meal selected yet</div>
+            <div className="text-sm text-stone-500">No meal selected yet</div>
           </div>
           <button
             onClick={openOptions}
             disabled={isGenerating}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-all active:scale-95 disabled:opacity-60"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-all active:scale-95 disabled:opacity-60 shadow-sm"
           >
             {isGenerating ? (
               <>
@@ -52,36 +52,36 @@ export default function MealCard({ day, mealType, recipe }) {
 
   return (
     <div
-      className="rounded-2xl bg-slate-800 border border-slate-700 overflow-hidden cursor-pointer active:scale-[0.99] transition-transform"
+      className="rounded-2xl bg-white border border-stone-200 overflow-hidden cursor-pointer active:scale-[0.99] transition-transform shadow-sm"
       onClick={handleOpen}
     >
       <div className="p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+              <span className="text-xs font-medium text-stone-400 uppercase tracking-wider">
                 {MEAL_LABEL[mealType]}
               </span>
               {recipe.highSodiumFlag && (
-                <span className="text-xs bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded-full">
+                <span className="text-xs bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded-full">
                   ⚠ Sodium
                 </span>
               )}
             </div>
-            <h3 className="font-semibold text-slate-100 text-sm leading-snug truncate">
+            <h3 className="font-semibold text-stone-900 text-sm leading-snug truncate">
               {recipe.name}
             </h3>
-            <div className="text-xs text-slate-500 mt-0.5">🕐 {recipe.cookTime}</div>
+            <div className="text-xs text-stone-400 mt-0.5">🕐 {recipe.cookTime}</div>
           </div>
 
           <button
             onClick={openOptions}
             disabled={isGenerating}
             title="Pick a different meal"
-            className="shrink-0 p-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-400 text-xs transition-colors disabled:opacity-50"
+            className="shrink-0 p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-500 text-xs transition-colors disabled:opacity-50"
           >
             {isGenerating
-              ? <span className="w-3 h-3 rounded-full border-2 border-slate-400/30 border-t-slate-400 animate-spin block" />
+              ? <span className="w-3 h-3 rounded-full border-2 border-stone-400/30 border-t-stone-400 animate-spin block" />
               : '↺'}
           </button>
         </div>
@@ -89,8 +89,8 @@ export default function MealCard({ day, mealType, recipe }) {
         {/* Macro chips */}
         <div className="mt-3 grid grid-cols-2 gap-2">
           {[
-            { label: 'Connor', data: recipe.macros?.connor, color: 'bg-sky-500/10 text-sky-400' },
-            { label: 'Isa',    data: recipe.macros?.isa,    color: 'bg-purple-500/10 text-purple-400' },
+            { label: 'Connor', data: recipe.macros?.connor, color: 'bg-blue-50 text-blue-700' },
+            { label: 'Isa',    data: recipe.macros?.isa,    color: 'bg-violet-50 text-violet-700' },
           ].map(({ label, data, color }) => (
             data && (
               <div key={label} className={`rounded-xl px-3 py-2 ${color}`}>

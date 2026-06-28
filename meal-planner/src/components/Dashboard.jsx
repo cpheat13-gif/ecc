@@ -21,10 +21,10 @@ export default function Dashboard() {
     <div className="flex flex-col h-[calc(100vh-64px)]">
       {/* Top bar */}
       <div className="shrink-0 px-4 pt-12 pb-2 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-slate-100">This Week</h1>
+        <h1 className="text-xl font-bold text-stone-900">This Week</h1>
         <button
           onClick={() => dispatch({ type: 'RESET' })}
-          className="text-xs text-slate-500 hover:text-slate-300 transition-colors px-3 py-1.5 rounded-lg bg-slate-800"
+          className="text-xs text-stone-500 hover:text-stone-700 transition-colors px-3 py-1.5 rounded-lg bg-stone-100"
         >
           ⚙ Reconfigure
         </button>
@@ -46,10 +46,10 @@ export default function Dashboard() {
               onClick={() => dispatch({ type: 'SET_ACTIVE_DAY', day })}
               className={`shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                 active
-                  ? 'bg-emerald-500 text-white'
+                  ? 'bg-emerald-600 text-white shadow-sm'
                   : hasContent
-                  ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                  : 'bg-slate-800/50 text-slate-500'
+                  ? 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                  : 'bg-stone-100/60 text-stone-400'
               }`}
             >
               {DAY_LABELS[day]}

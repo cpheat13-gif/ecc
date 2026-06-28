@@ -13,13 +13,13 @@ const MEAL_OPTIONS = [
   { id: 'snack',     icon: '🍎', label: 'Snack'     },
 ];
 
-function Toggle({ on, onToggle, colorOn = 'bg-emerald-500' }) {
+function Toggle({ on, onToggle, colorOn = 'bg-emerald-600' }) {
   return (
     <button
       onClick={onToggle}
-      className={`w-12 h-6 rounded-full transition-colors relative flex-shrink-0 ${on ? colorOn : 'bg-slate-600'}`}
+      className={`w-12 h-6 rounded-full transition-colors relative flex-shrink-0 ${on ? colorOn : 'bg-stone-300'}`}
     >
-      <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${on ? 'translate-x-6' : 'translate-x-0.5'}`} />
+      <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform shadow-sm ${on ? 'translate-x-6' : 'translate-x-0.5'}`} />
     </button>
   );
 }
@@ -35,10 +35,10 @@ function DayStep({ config, onChange }) {
   return (
     <div className="flex-1 overflow-y-auto space-y-4">
       {/* Enable toggle */}
-      <div className="flex items-center justify-between bg-slate-800 rounded-2xl p-4 border border-slate-700">
+      <div className="flex items-center justify-between bg-white rounded-2xl p-4 border border-stone-200 shadow-sm">
         <div>
-          <div className="text-white font-medium">Plan meals this day?</div>
-          <div className="text-slate-500 text-xs mt-0.5">Toggle on to set up meals</div>
+          <div className="text-stone-900 font-medium">Plan meals this day?</div>
+          <div className="text-stone-400 text-xs mt-0.5">Toggle on to set up meals</div>
         </div>
         <Toggle on={config.enabled} onToggle={() => onChange({ ...config, enabled: !config.enabled })} />
       </div>
@@ -47,7 +47,7 @@ function DayStep({ config, onChange }) {
         <>
           {/* Who */}
           <div>
-            <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2 px-1">
+            <div className="text-stone-400 text-xs font-semibold uppercase tracking-wider mb-2 px-1">
               Who are we planning for?
             </div>
             <div className="grid grid-cols-3 gap-2">
@@ -61,8 +61,8 @@ function DayStep({ config, onChange }) {
                   onClick={() => onChange({ ...config, participants: id })}
                   className={`py-3 rounded-2xl text-sm font-medium transition-colors ${
                     config.participants === id
-                      ? 'bg-emerald-500 text-white'
-                      : 'bg-slate-800 text-slate-400 border border-slate-700'
+                      ? 'bg-emerald-600 text-white shadow-sm'
+                      : 'bg-white text-stone-600 border border-stone-200'
                   }`}
                 >
                   {label}
@@ -73,7 +73,7 @@ function DayStep({ config, onChange }) {
 
           {/* Meals */}
           <div>
-            <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2 px-1">
+            <div className="text-stone-400 text-xs font-semibold uppercase tracking-wider mb-2 px-1">
               Which meals?
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -83,8 +83,8 @@ function DayStep({ config, onChange }) {
                   onClick={() => toggleMeal(id)}
                   className={`py-3 rounded-2xl text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
                     config.meals.includes(id)
-                      ? 'bg-emerald-500 text-white'
-                      : 'bg-slate-800 text-slate-400 border border-slate-700'
+                      ? 'bg-emerald-600 text-white shadow-sm'
+                      : 'bg-white text-stone-600 border border-stone-200'
                   }`}
                 >
                   <span>{icon}</span>{label}
@@ -95,42 +95,42 @@ function DayStep({ config, onChange }) {
 
           {/* Training */}
           <div>
-            <div className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2 px-1">
+            <div className="text-stone-400 text-xs font-semibold uppercase tracking-wider mb-2 px-1">
               Training day?
             </div>
             <div className="space-y-2">
               {config.participants !== 'isa' && (
-                <div className="flex items-center justify-between bg-slate-800 rounded-2xl px-4 py-3 border border-slate-700">
+                <div className="flex items-center justify-between bg-white rounded-2xl px-4 py-3 border border-stone-200 shadow-sm">
                   <div>
-                    <span className="text-white text-sm font-medium">Connor</span>
-                    <span className="text-xs text-slate-500 ml-2">
+                    <span className="text-stone-900 text-sm font-medium">Connor</span>
+                    <span className="text-xs text-stone-400 ml-2">
                       {config.connorTraining ? '2,750 kcal' : '2,450 kcal'}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-500">{config.connorTraining ? 'Training' : 'Rest'}</span>
+                    <span className="text-xs text-stone-400">{config.connorTraining ? 'Training' : 'Rest'}</span>
                     <Toggle
                       on={config.connorTraining}
                       onToggle={() => onChange({ ...config, connorTraining: !config.connorTraining })}
-                      colorOn="bg-sky-500"
+                      colorOn="bg-blue-500"
                     />
                   </div>
                 </div>
               )}
               {config.participants !== 'connor' && (
-                <div className="flex items-center justify-between bg-slate-800 rounded-2xl px-4 py-3 border border-slate-700">
+                <div className="flex items-center justify-between bg-white rounded-2xl px-4 py-3 border border-stone-200 shadow-sm">
                   <div>
-                    <span className="text-white text-sm font-medium">Isa</span>
-                    <span className="text-xs text-slate-500 ml-2">
+                    <span className="text-stone-900 text-sm font-medium">Isa</span>
+                    <span className="text-xs text-stone-400 ml-2">
                       {config.isaTraining ? '1,700 kcal' : '1,500 kcal'}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-500">{config.isaTraining ? 'Training' : 'Rest'}</span>
+                    <span className="text-xs text-stone-400">{config.isaTraining ? 'Training' : 'Rest'}</span>
                     <Toggle
                       on={config.isaTraining}
                       onToggle={() => onChange({ ...config, isaTraining: !config.isaTraining })}
-                      colorOn="bg-purple-500"
+                      colorOn="bg-violet-500"
                     />
                   </div>
                 </div>
@@ -153,28 +153,28 @@ function ReviewStep({ weekConfig, onEdit }) {
           : cfg.participants === 'connor' ? 'Connor only' : 'Isa only';
 
         return (
-          <div key={day} className={`rounded-2xl p-4 ${cfg.enabled ? 'bg-slate-800 border border-slate-700' : 'bg-slate-800/30'}`}>
+          <div key={day} className={`rounded-2xl p-4 ${cfg.enabled ? 'bg-white border border-stone-200 shadow-sm' : 'bg-stone-100/50'}`}>
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <span className="text-white font-semibold w-8 shrink-0">{DAY_FULL[day].slice(0, 3)}</span>
+                <span className="text-stone-900 font-semibold w-8 shrink-0">{DAY_FULL[day].slice(0, 3)}</span>
                 {cfg.enabled && cfg.meals.length > 0 ? (
                   <div className="min-w-0">
-                    <div className="text-xs text-emerald-400 capitalize truncate">
+                    <div className="text-xs text-emerald-700 capitalize truncate">
                       {cfg.meals.join(' · ')}
                     </div>
-                    <div className="text-xs text-slate-500 mt-0.5">
+                    <div className="text-xs text-stone-400 mt-0.5">
                       {participantLabel}
                       {cfg.participants !== 'isa' && ` · C: ${cfg.connorTraining ? 'Train' : 'Rest'}`}
                       {cfg.participants !== 'connor' && ` · I: ${cfg.isaTraining ? 'Train' : 'Rest'}`}
                     </div>
                   </div>
                 ) : (
-                  <span className="text-xs text-slate-600">No meals planned</span>
+                  <span className="text-xs text-stone-400">No meals planned</span>
                 )}
               </div>
               <button
                 onClick={() => onEdit(i)}
-                className="shrink-0 text-xs text-emerald-400 px-2 py-1 rounded-lg bg-emerald-500/10"
+                className="shrink-0 text-xs text-emerald-700 px-2 py-1 rounded-lg bg-emerald-50"
               >
                 Edit
               </button>
@@ -224,14 +224,14 @@ export default function SetupFlow() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-900 px-5 pt-12 pb-6 max-w-[430px] mx-auto">
+    <div className="min-h-screen flex flex-col bg-stone-50 px-5 pt-12 pb-6 max-w-[430px] mx-auto">
       {/* Progress bar */}
       <div className="flex gap-1.5 mb-8">
         {[...DAYS, 'review'].map((_, i) => (
           <div
             key={i}
             className={`h-1.5 rounded-full transition-all flex-1 ${
-              i === step ? 'bg-emerald-400' : i < step ? 'bg-emerald-700' : 'bg-slate-700'
+              i === step ? 'bg-emerald-600' : i < step ? 'bg-emerald-300' : 'bg-stone-200'
             }`}
           />
         ))}
@@ -241,13 +241,13 @@ export default function SetupFlow() {
       <div className="mb-6 shrink-0">
         {isReview ? (
           <>
-            <div className="text-emerald-400 text-sm font-medium mb-1">Almost done!</div>
-            <h1 className="text-3xl font-bold text-white">Review your week</h1>
+            <div className="text-emerald-700 text-sm font-medium mb-1">Almost done!</div>
+            <h1 className="text-3xl font-bold text-stone-900">Review your week</h1>
           </>
         ) : (
           <>
-            <div className="text-emerald-400 text-sm font-medium mb-1">Day {step + 1} of 7</div>
-            <h1 className="text-3xl font-bold text-white">{DAY_FULL[day]}</h1>
+            <div className="text-emerald-700 text-sm font-medium mb-1">Day {step + 1} of 7</div>
+            <h1 className="text-3xl font-bold text-stone-900">{DAY_FULL[day]}</h1>
           </>
         )}
       </div>
@@ -264,7 +264,7 @@ export default function SetupFlow() {
         {step > 0 && (
           <button
             onClick={() => setStep(s => s - 1)}
-            className="py-4 px-6 bg-slate-800 text-slate-300 rounded-2xl font-medium border border-slate-700"
+            className="py-4 px-6 bg-white text-stone-700 rounded-2xl font-medium border border-stone-200 shadow-sm"
           >
             Back
           </button>
@@ -273,7 +273,7 @@ export default function SetupFlow() {
           <button
             onClick={handleBuild}
             disabled={totalMeals === 0}
-            className="flex-1 py-4 bg-emerald-500 text-white rounded-2xl font-semibold text-base active:scale-95 transition-transform disabled:opacity-40"
+            className="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-semibold text-base active:scale-95 transition-transform disabled:opacity-40 shadow-sm"
           >
             {totalMeals === 0
               ? 'Add at least one meal'
@@ -282,7 +282,7 @@ export default function SetupFlow() {
         ) : (
           <button
             onClick={() => setStep(s => s + 1)}
-            className="flex-1 py-4 bg-emerald-500 text-white rounded-2xl font-semibold text-base active:scale-95 transition-transform"
+            className="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-semibold text-base active:scale-95 transition-transform shadow-sm"
           >
             {step === 6 ? 'Review →' : 'Next →'}
           </button>

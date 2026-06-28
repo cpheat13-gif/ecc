@@ -7,18 +7,18 @@ const MEAL_ICONS = { breakfast: '☀️', lunch: '🥗', dinner: '🍽️', snac
 
 function SkeletonCard() {
   return (
-    <div className="bg-slate-800 rounded-2xl p-4 border border-slate-700 animate-pulse">
+    <div className="bg-stone-50 rounded-2xl p-4 border border-stone-200 animate-pulse">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 space-y-2">
-          <div className="h-4 bg-slate-700 rounded-lg w-3/4" />
-          <div className="h-3 bg-slate-700/60 rounded-lg w-1/3" />
-          <div className="h-3 bg-slate-700/40 rounded-lg w-full" />
+          <div className="h-4 bg-stone-200 rounded-lg w-3/4" />
+          <div className="h-3 bg-stone-200/60 rounded-lg w-1/3" />
+          <div className="h-3 bg-stone-200/40 rounded-lg w-full" />
         </div>
-        <div className="w-14 h-8 bg-slate-700 rounded-xl shrink-0" />
+        <div className="w-14 h-8 bg-stone-200 rounded-xl shrink-0" />
       </div>
       <div className="mt-3 flex gap-2">
-        <div className="flex-1 h-12 bg-slate-700/40 rounded-xl" />
-        <div className="flex-1 h-12 bg-slate-700/40 rounded-xl" />
+        <div className="flex-1 h-12 bg-stone-200/40 rounded-xl" />
+        <div className="flex-1 h-12 bg-stone-200/40 rounded-xl" />
       </div>
     </div>
   );
@@ -26,19 +26,19 @@ function SkeletonCard() {
 
 function OptionCard({ option, participants, onSelect, selecting }) {
   return (
-    <div className="bg-slate-800 rounded-2xl p-4 border border-slate-700">
+    <div className="bg-white rounded-2xl p-4 border border-stone-200 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <h3 className="text-white font-semibold text-sm leading-snug">{option.name}</h3>
-          <div className="text-slate-500 text-xs mt-0.5">🕐 {option.cookTime}</div>
+          <h3 className="text-stone-900 font-semibold text-sm leading-snug">{option.name}</h3>
+          <div className="text-stone-400 text-xs mt-0.5">🕐 {option.cookTime}</div>
           {option.description && (
-            <p className="text-slate-400 text-xs mt-1.5 leading-relaxed">{option.description}</p>
+            <p className="text-stone-500 text-xs mt-1.5 leading-relaxed">{option.description}</p>
           )}
         </div>
         <button
           onClick={onSelect}
           disabled={selecting}
-          className="shrink-0 px-3 py-2 bg-emerald-500 text-white text-xs font-semibold rounded-xl active:scale-95 transition-all disabled:opacity-40 flex items-center gap-1.5"
+          className="shrink-0 px-3 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-xl active:scale-95 transition-all disabled:opacity-40 flex items-center gap-1.5 shadow-sm"
         >
           {selecting ? (
             <span className="w-3 h-3 rounded-full border-2 border-white/30 border-t-white animate-spin" />
@@ -48,17 +48,17 @@ function OptionCard({ option, participants, onSelect, selecting }) {
 
       <div className="mt-3 flex gap-2">
         {participants !== 'isa' && option.macros?.connor && (
-          <div className="flex-1 bg-sky-500/10 rounded-xl px-3 py-2">
-            <div className="text-[10px] text-sky-400 font-medium mb-0.5">Connor</div>
-            <div className="text-xs text-sky-300 font-semibold">{option.macros.connor.calories} kcal</div>
-            <div className="text-[10px] text-sky-400/70">P {option.macros.connor.protein}g · C {option.macros.connor.carbs}g · F {option.macros.connor.fat}g</div>
+          <div className="flex-1 bg-blue-50 rounded-xl px-3 py-2">
+            <div className="text-[10px] text-blue-600 font-medium mb-0.5">Connor</div>
+            <div className="text-xs text-blue-700 font-semibold">{option.macros.connor.calories} kcal</div>
+            <div className="text-[10px] text-blue-500">P {option.macros.connor.protein}g · C {option.macros.connor.carbs}g · F {option.macros.connor.fat}g</div>
           </div>
         )}
         {participants !== 'connor' && option.macros?.isa && (
-          <div className="flex-1 bg-purple-500/10 rounded-xl px-3 py-2">
-            <div className="text-[10px] text-purple-400 font-medium mb-0.5">Isa</div>
-            <div className="text-xs text-purple-300 font-semibold">{option.macros.isa.calories} kcal</div>
-            <div className="text-[10px] text-purple-400/70">P {option.macros.isa.protein}g · C {option.macros.isa.carbs}g · F {option.macros.isa.fat}g</div>
+          <div className="flex-1 bg-violet-50 rounded-xl px-3 py-2">
+            <div className="text-[10px] text-violet-600 font-medium mb-0.5">Isa</div>
+            <div className="text-xs text-violet-700 font-semibold">{option.macros.isa.calories} kcal</div>
+            <div className="text-[10px] text-violet-500">P {option.macros.isa.protein}g · C {option.macros.isa.carbs}g · F {option.macros.isa.fat}g</div>
           </div>
         )}
       </div>
@@ -131,26 +131,26 @@ export default function MealOptionsSheet() {
 
   return (
     <div className="fixed inset-0 z-[60] flex flex-col justify-end">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={close} />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={close} />
 
-      <div className="relative bg-slate-900 rounded-t-3xl max-h-[92vh] flex flex-col border-t border-slate-700">
+      <div className="relative bg-white rounded-t-3xl max-h-[92vh] flex flex-col border-t border-stone-200 shadow-2xl">
         {/* Handle */}
         <div className="flex justify-center pt-3 pb-1 shrink-0">
-          <div className="w-10 h-1 bg-slate-600 rounded-full" />
+          <div className="w-10 h-1 bg-stone-300 rounded-full" />
         </div>
 
         {/* Header */}
-        <div className="px-5 pb-4 shrink-0 border-b border-slate-800">
+        <div className="px-5 pb-4 shrink-0 border-b border-stone-100">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <div className="text-slate-500 text-xs capitalize">
+              <div className="text-stone-400 text-xs capitalize">
                 {MEAL_ICONS[mealType]} {mealType} · {day}
               </div>
-              <h2 className="text-white text-lg font-bold">Pick a meal</h2>
+              <h2 className="text-stone-900 text-lg font-bold">Pick a meal</h2>
             </div>
             <button
               onClick={close}
-              className="w-8 h-8 flex items-center justify-center rounded-xl bg-slate-800 text-slate-400 hover:text-white transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-xl bg-stone-100 text-stone-500 hover:text-stone-800 transition-colors"
             >
               ✕
             </button>
@@ -163,25 +163,25 @@ export default function MealOptionsSheet() {
               onChange={e => setSearchInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSearch()}
               placeholder="Thai vibes, quick pasta, high protein…"
-              className="flex-1 bg-slate-800 text-white text-sm rounded-xl px-4 py-2.5 placeholder-slate-500 outline-none border border-slate-700 focus:border-emerald-500 transition-colors"
+              className="flex-1 bg-stone-50 text-stone-900 text-sm rounded-xl px-4 py-2.5 placeholder-stone-400 outline-none border border-stone-200 focus:border-emerald-500 transition-colors"
             />
             <button
               onClick={handleSearch}
               disabled={loading || !searchInput.trim()}
-              className="px-4 py-2.5 bg-emerald-500 text-white text-sm font-semibold rounded-xl disabled:opacity-40 active:scale-95 transition-all"
+              className="px-4 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-xl disabled:opacity-40 active:scale-95 transition-all shadow-sm"
             >
               Search
             </button>
           </div>
           {currentSearch && (
             <div className="mt-2 flex items-center gap-2">
-              <span className="text-xs text-slate-500">Showing results for</span>
-              <span className="text-xs text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+              <span className="text-xs text-stone-400">Showing results for</span>
+              <span className="text-xs text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
                 "{currentSearch}"
               </span>
               <button
                 onClick={() => { setCurrentSearch(''); setSearchInput(''); fetchOptions(''); }}
-                className="text-xs text-slate-500 hover:text-slate-300 ml-auto"
+                className="text-xs text-stone-400 hover:text-stone-600 ml-auto"
               >
                 Clear
               </button>
@@ -196,10 +196,10 @@ export default function MealOptionsSheet() {
           ) : error ? (
             <div className="text-center py-10">
               <div className="text-2xl mb-2">😬</div>
-              <div className="text-slate-400 text-sm mb-4">{error}</div>
+              <div className="text-stone-500 text-sm mb-4">{error}</div>
               <button
                 onClick={() => fetchOptions(currentSearch)}
-                className="px-5 py-2.5 bg-emerald-500 text-white text-sm font-medium rounded-xl"
+                className="px-5 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-xl shadow-sm"
               >
                 Try again
               </button>
@@ -219,7 +219,7 @@ export default function MealOptionsSheet() {
           {!loading && !error && options.length > 0 && (
             <button
               onClick={() => fetchOptions(currentSearch)}
-              className="w-full py-3 text-sm text-slate-400 border border-slate-700 rounded-2xl hover:bg-slate-800 transition-colors"
+              className="w-full py-3 text-sm text-stone-500 border border-stone-200 rounded-2xl hover:bg-stone-50 transition-colors"
             >
               ↺ Generate 5 new options
             </button>

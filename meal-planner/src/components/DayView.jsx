@@ -5,15 +5,15 @@ import { useApp, MEAL_TYPES } from '../context/AppContext';
 
 function PersonMacros({ name, totals, targets, color }) {
   const chipColor = color === 'sky'
-    ? 'text-sky-400 bg-sky-500/10'
-    : 'text-purple-400 bg-purple-500/10';
+    ? 'text-blue-600 bg-blue-50'
+    : 'text-violet-600 bg-violet-50';
 
   return (
-    <div className="flex-1 min-w-0 bg-slate-800 rounded-2xl p-3">
+    <div className="flex-1 min-w-0 bg-white border border-stone-200 rounded-2xl p-3 shadow-sm">
       <div className="flex items-center justify-between mb-2">
         <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${chipColor}`}>{name}</span>
-        <span className="text-xs text-slate-500">
-          {totals.calories} <span className="text-slate-600">/ {targets.calories} kcal</span>
+        <span className="text-xs text-stone-500">
+          {totals.calories} <span className="text-stone-400">/ {targets.calories} kcal</span>
         </span>
       </div>
       <div className="space-y-2">
@@ -39,7 +39,7 @@ export default function DayView({ day }) {
     return (
       <div className="px-4 py-12 text-center">
         <div className="text-4xl mb-3">😴</div>
-        <div className="text-slate-400 text-sm">No meals planned for this day</div>
+        <div className="text-stone-400 text-sm">No meals planned for this day</div>
       </div>
     );
   }
@@ -50,14 +50,14 @@ export default function DayView({ day }) {
       <div className="flex gap-2 pt-1 flex-wrap">
         {dayConfig.participants !== 'isa' && (
           <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-            dayConfig.connorTraining ? 'bg-sky-500/20 text-sky-400' : 'bg-slate-700 text-slate-400'
+            dayConfig.connorTraining ? 'bg-blue-50 text-blue-600' : 'bg-stone-100 text-stone-500'
           }`}>
             Connor: {dayConfig.connorTraining ? '💪 Training' : '🛋 Rest'}
           </span>
         )}
         {dayConfig.participants !== 'connor' && (
           <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-            dayConfig.isaTraining ? 'bg-purple-500/20 text-purple-400' : 'bg-slate-700 text-slate-400'
+            dayConfig.isaTraining ? 'bg-violet-50 text-violet-600' : 'bg-stone-100 text-stone-500'
           }`}>
             Isa: {dayConfig.isaTraining ? '💪 Training' : '🛋 Rest'}
           </span>
