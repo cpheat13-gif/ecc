@@ -311,7 +311,7 @@ function EditableRow({
         />
         <button
           onClick={() => onRemove(vaultId, item.id)}
-          className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-opacity"
+          className="opacity-30 hover:opacity-100 active:opacity-100 text-red-400 hover:text-red-600 transition-opacity"
         >
           <Trash2 size={12} />
         </button>
@@ -342,7 +342,7 @@ function EditableSubRow({
         />
         <button
           onClick={() => onRemove(item.id)}
-          className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-opacity"
+          className="opacity-30 hover:opacity-100 active:opacity-100 text-red-400 hover:text-red-600 transition-opacity"
         >
           <Trash2 size={12} />
         </button>

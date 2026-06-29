@@ -22,7 +22,7 @@ export default function EditableAmount({ value, onChange, className = '', prefix
 
   function commit() {
     const n = parseFloat(draft.replace(/[^0-9.-]/g, ''))
-    if (!isNaN(n) && n >= 0) onChange(Math.round(n * 100) / 100)
+    if (!isNaN(n)) onChange(Math.round(n * 100) / 100)
     setEditing(false)
   }
 
@@ -41,11 +41,14 @@ export default function EditableAmount({ value, onChange, className = '', prefix
         onBlur={commit}
         onKeyDown={handleKey}
         className={`editable-cell text-sm w-24 ${className}`}
-        min={0}
         step={1}
       />
     )
   }
+
+  const display = value < 0
+    ? `-${prefix}${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`
+    : `${prefix}${value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`
 
   return (
     <span
@@ -53,7 +56,7 @@ export default function EditableAmount({ value, onChange, className = '', prefix
       title="Click to edit"
       className={`cursor-pointer hover:text-indigo-700 font-medium ${className}`}
     >
-      {prefix}{value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+      {display}
     </span>
   )
 }

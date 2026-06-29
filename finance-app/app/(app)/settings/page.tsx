@@ -8,7 +8,7 @@ import { hasPin } from '@/lib/pin/pin'
 import EditableAmount from '@/components/ui/EditableAmount'
 import PinSetupModal from '@/components/PinSetupModal'
 import { Plus, Trash2, RotateCcw, Upload, Download, Check, AlertCircle, Lock, LockOpen } from 'lucide-react'
-import type { PreTaxDeduction } from '@/types/app'
+import type { PreTaxDeduction, Vault } from '@/types/app'
 
 function newId() { return Math.random().toString(36).slice(2) }
 
@@ -97,6 +97,37 @@ export default function SettingsPage() {
     updateSettings(s => ({
       ...s,
       vaults: s.vaults.map(v => v.id === vaultId ? { ...v, goal_amount: amount } : v),
+    }))
+  }
+
+  function updateVaultName(vaultId: string, name: string) {
+    updateSettings(s => ({
+      ...s,
+      vaults: s.vaults.map(v => v.id === vaultId ? { ...v, name } : v),
+    }))
+  }
+
+  function updateVaultIcon(vaultId: string, icon: string) {
+    updateSettings(s => ({
+      ...s,
+      vaults: s.vaults.map(v => v.id === vaultId ? { ...v, icon } : v),
+    }))
+  }
+
+  function addVault() {
+    const id = newId()
+    updateSettings(s => {
+      const withoutCC = s.vaults.filter(v => v.id !== 'credit-card')
+      const cc = s.vaults.find(v => v.id === 'credit-card')
+      const newVault: Vault = { id, name: 'New Vault', goal_amount: 0, color: 'gray', icon: '💰', line_items: [] }
+      return { ...s, vaults: cc ? [...withoutCC, newVault, cc] : [...withoutCC, newVault] }
+    })
+  }
+
+  function removeVault(vaultId: string) {
+    updateSettings(s => ({
+      ...s,
+      vaults: s.vaults.filter(v => v.id !== vaultId),
     }))
   }
 
@@ -371,34 +402,26 @@ export default function SettingsPage() {
         <div className="bg-white rounded-2xl border border-gray-200 divide-y divide-gray-100">
           {settings.vaults.map(vault => {
             const pct = totalGoals > 0 ? (vault.goal_amount / totalGoals * 100).toFixed(1) : '0'
-            const isAuto = vault.id === 'credit-card'
             return (
-              <div key={vault.id} className="flex items-center justify-between px-5 py-4">
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">{vault.icon}</span>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-800">{vault.name}</span>
-                      {isAuto && (
-                        <span className="text-xs text-indigo-500 font-medium bg-indigo-50 px-1.5 py-0.5 rounded">auto</span>
-                      )}
-                    </div>
-                    <div className="text-xs text-gray-400">{pct}% of total</div>
-                  </div>
-                </div>
-                {isAuto ? (
-                  <span className="text-sm font-semibold text-indigo-600">{formatCurrency(vault.goal_amount)}</span>
-                ) : (
-                  <EditableAmount
-                    value={vault.goal_amount}
-                    onChange={v => updateVaultGoal(vault.id, v)}
-                    prefix="$"
-                    className="text-sm font-semibold text-right"
-                  />
-                )}
-              </div>
+              <VaultRow
+                key={vault.id}
+                vault={vault}
+                pct={pct}
+                onNameChange={name => updateVaultName(vault.id, name)}
+                onIconChange={icon => updateVaultIcon(vault.id, icon)}
+                onGoalChange={v => updateVaultGoal(vault.id, v)}
+                onRemove={() => removeVault(vault.id)}
+              />
             )
           })}
+          <div className="px-5 py-3">
+            <button
+              onClick={addVault}
+              className="flex items-center gap-1 text-xs text-gray-400 hover:text-indigo-600 transition-colors"
+            >
+              <Plus size={12} /> Add vault
+            </button>
+          </div>
           <div className="flex items-center justify-between px-5 py-3 bg-gray-50 rounded-b-2xl">
             <span className="text-sm font-semibold text-gray-700">Total Monthly Need</span>
             <span className="text-sm font-bold text-gray-900">{formatCurrency(totalGoals)}</span>
@@ -439,6 +462,103 @@ export default function SettingsPage() {
           })}
         </div>
       </section>
+    </div>
+  )
+}
+
+function VaultRow({
+  vault, pct, onNameChange, onIconChange, onGoalChange, onRemove,
+}: {
+  vault: Vault
+  pct: string
+  onNameChange: (name: string) => void
+  onIconChange: (icon: string) => void
+  onGoalChange: (amount: number) => void
+  onRemove: () => void
+}) {
+  const isAuto = vault.id === 'credit-card'
+  const [editingName, setEditingName] = useState(false)
+  const [nameDraft, setNameDraft] = useState(vault.name)
+  const [editingIcon, setEditingIcon] = useState(false)
+  const [iconDraft, setIconDraft] = useState(vault.icon)
+
+  function commitName() {
+    if (nameDraft.trim()) onNameChange(nameDraft.trim())
+    setEditingName(false)
+  }
+
+  function commitIcon() {
+    if (iconDraft.trim()) onIconChange(iconDraft.trim())
+    setEditingIcon(false)
+  }
+
+  return (
+    <div className="flex items-center justify-between px-5 py-4">
+      <div className="flex items-center gap-3">
+        {editingIcon ? (
+          <input
+            autoFocus
+            value={iconDraft}
+            onChange={e => setIconDraft(e.target.value)}
+            onBlur={commitIcon}
+            onKeyDown={e => { if (e.key === 'Enter') commitIcon(); if (e.key === 'Escape') setEditingIcon(false) }}
+            className="text-xl border border-indigo-300 rounded px-1 py-0.5 w-12 text-center focus:outline-none"
+          />
+        ) : (
+          <span
+            onClick={() => { if (!isAuto) { setIconDraft(vault.icon); setEditingIcon(true) } }}
+            className={`text-xl${!isAuto ? ' cursor-pointer hover:opacity-70' : ''}`}
+            title={!isAuto ? 'Tap to change emoji' : undefined}
+          >
+            {vault.icon}
+          </span>
+        )}
+        <div>
+          <div className="flex items-center gap-2">
+            {editingName ? (
+              <input
+                autoFocus
+                value={nameDraft}
+                onChange={e => setNameDraft(e.target.value)}
+                onBlur={commitName}
+                onKeyDown={e => { if (e.key === 'Enter') commitName(); if (e.key === 'Escape') setEditingName(false) }}
+                className="text-sm border border-indigo-300 rounded px-1 py-0.5 w-36 focus:outline-none"
+              />
+            ) : (
+              <span
+                onClick={() => { if (!isAuto) { setNameDraft(vault.name); setEditingName(true) } }}
+                className={`text-sm font-medium text-gray-800${!isAuto ? ' cursor-pointer hover:text-indigo-600' : ''}`}
+              >
+                {vault.name}
+              </span>
+            )}
+            {isAuto && (
+              <span className="text-xs text-indigo-500 font-medium bg-indigo-50 px-1.5 py-0.5 rounded">auto</span>
+            )}
+          </div>
+          <div className="text-xs text-gray-400">{pct}% of total</div>
+        </div>
+      </div>
+      <div className="flex items-center gap-3">
+        {isAuto ? (
+          <span className="text-sm font-semibold text-indigo-600">{formatCurrency(vault.goal_amount)}</span>
+        ) : (
+          <EditableAmount
+            value={vault.goal_amount}
+            onChange={onGoalChange}
+            prefix="$"
+            className="text-sm font-semibold text-right"
+          />
+        )}
+        {!isAuto && (
+          <button
+            onClick={onRemove}
+            className="opacity-30 hover:opacity-100 active:opacity-100 text-red-400 hover:text-red-600 transition-opacity"
+          >
+            <Trash2 size={14} />
+          </button>
+        )}
+      </div>
     </div>
   )
 }
@@ -509,7 +629,7 @@ function DeductionRow({
         {!ded.is_employer_match && (
           <button
             onClick={onRemove}
-            className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-opacity"
+            className="opacity-30 hover:opacity-100 active:opacity-100 text-red-400 hover:text-red-600 transition-opacity"
           >
             <Trash2 size={12} />
           </button>
