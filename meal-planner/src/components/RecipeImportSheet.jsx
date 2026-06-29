@@ -111,7 +111,10 @@ export default function RecipeImportSheet({ onClose }) {
   };
 
   const save = () => {
-    dispatch({ type: 'ADD_CUSTOM_RECIPE', recipe: preview });
+    const recipe = tab === 'tiktok' && url.trim()
+      ? { ...preview, sourceTikTokUrl: url.trim() }
+      : preview;
+    dispatch({ type: 'ADD_CUSTOM_RECIPE', recipe });
     onClose();
   };
 

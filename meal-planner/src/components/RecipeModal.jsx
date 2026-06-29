@@ -190,6 +190,21 @@ export default function RecipeModal() {
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto px-5 pb-10 space-y-6 pt-5">
+          {/* TikTok source link */}
+          {isLibrary && recipe.sourceTikTokUrl && (
+            <a
+              href={recipe.sourceTikTokUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-2 text-xs text-stone-500 font-medium bg-stone-50 rounded-xl px-3 py-2.5 border border-stone-100 active:bg-stone-100 transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="shrink-0 text-stone-400">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/>
+              </svg>
+              <span className="truncate">{recipe.sourceTikTokUrl}</span>
+            </a>
+          )}
+
           {/* Macros */}
           <section>
             <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Macros per serving</p>
