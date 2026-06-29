@@ -145,6 +145,18 @@ function reducer(state, action) {
     case 'DELETE_CUSTOM_RECIPE':
       return { ...state, customRecipes: (state.customRecipes || []).filter(r => r.id !== action.id) };
 
+    case 'RESTORE_CUSTOM_RECIPES':
+      return { ...state, customRecipes: action.recipes };
+
+    case 'RESTORE_STARRED_MEALS':
+      return { ...state, starredMeals: action.meals };
+
+    case 'RESTORE_MEAL_PLAN':
+      return { ...state, mealPlan: action.plan };
+
+    case 'RESTORE_WEEK_CONFIG':
+      return { ...state, weekConfig: action.config };
+
     case 'RESET':
       return { ...INITIAL_STATE };
 

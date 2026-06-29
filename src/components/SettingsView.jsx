@@ -44,6 +44,81 @@ function PersonCard({ person, label, color, values, onChange }) {
   );
 }
 
+function DataBackup() {
+  const { state, dispatch } = useApp();
+  const [importError, setImportError] = useState(null);
+  const [importOk, setImportOk]       = useState(false);
+
+  const handleExport = () => {
+    const data = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      customRecipes: state.customRecipes || [],
+      starredMeals: state.starredMeals || {},
+      mealPlan: state.mealPlan || {},
+      weekConfig: state.weekConfig || {},
+      settings: state.settings || {},
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `meal-planner-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImportError(null);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!data.version || !data.customRecipes) throw new Error('Unrecognised backup file');
+        if (data.customRecipes)  dispatch({ type: 'RESTORE_CUSTOM_RECIPES',  recipes:  data.customRecipes });
+        if (data.starredMeals)   dispatch({ type: 'RESTORE_STARRED_MEALS',   meals:    data.starredMeals });
+        if (data.mealPlan)       dispatch({ type: 'RESTORE_MEAL_PLAN',       plan:     data.mealPlan });
+        if (data.weekConfig)     dispatch({ type: 'RESTORE_WEEK_CONFIG',     config:   data.weekConfig });
+        if (data.settings)       dispatch({ type: 'UPDATE_SETTINGS',         settings: data.settings });
+        setImportOk(true);
+        setTimeout(() => setImportOk(false), 3000);
+      } catch (err) {
+        setImportError(err.message || 'Could not read file');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  return (
+    <div className="border-t border-stone-100 pt-2">
+      <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest mb-3 px-1">Data backup</p>
+      <div className="space-y-2">
+        <button
+          onClick={handleExport}
+          className="w-full py-3 text-sm font-medium text-stone-700 bg-white border border-stone-100 rounded-2xl shadow-[0_1px_6px_rgba(0,0,0,0.05)] flex items-center justify-center gap-2"
+        >
+          <span>↓</span> Export all data
+        </button>
+        <label className={`w-full py-3 text-sm font-medium rounded-2xl border flex items-center justify-center gap-2 cursor-pointer transition-colors ${
+          importOk
+            ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+            : 'bg-white border-stone-100 text-stone-700 shadow-[0_1px_6px_rgba(0,0,0,0.05)]'
+        }`}>
+          <span>{importOk ? '✓' : '↑'}</span>
+          {importOk ? 'Imported!' : 'Import from backup'}
+          <input type="file" accept=".json" className="sr-only" onChange={handleImport} />
+        </label>
+        {importError && (
+          <p className="text-xs text-red-500 px-1">{importError}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function SettingsView() {
   const { state, dispatch } = useApp();
   const [draft, setDraft] = useState(() => JSON.parse(JSON.stringify(state.settings)));
@@ -127,6 +202,8 @@ export default function SettingsView() {
             </button>
           </div>
         </div>
+
+        <DataBackup />
       </div>
     </div>
   );
