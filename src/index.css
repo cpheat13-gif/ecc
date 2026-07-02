@@ -60,3 +60,52 @@ body {
     padding-bottom: env(safe-area-inset-bottom);
   }
 }
+
+/* Photo blur-up reveal */
+.img-reveal {
+  opacity: 0;
+  filter: blur(18px) saturate(0.7);
+  transform: scale(1.06);
+}
+.img-reveal.on {
+  opacity: 1;
+  filter: blur(0) saturate(1);
+  transform: scale(1);
+  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+              filter 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Gradient shimmer for streaming/status text */
+.shimmer-text {
+  background: linear-gradient(90deg, #a8a29e 0%, #1c1917 45%, #e8433f 50%, #1c1917 55%, #a8a29e 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 1.8s linear infinite;
+}
+@keyframes shimmer {
+  to { background-position: -220% 0; }
+}
+
+/* Springy view transitions (dashboard <-> catalog zoom) */
+.view-zoom-out {
+  animation: zoomOutIn 0.65s cubic-bezier(0.22, 1.3, 0.36, 1) both;
+}
+.view-zoom-in {
+  animation: zoomInIn 0.65s cubic-bezier(0.22, 1.3, 0.36, 1) both;
+}
+@keyframes zoomOutIn {
+  from { opacity: 0; transform: scale(1.1); filter: blur(14px); }
+  to   { opacity: 1; transform: scale(1);   filter: blur(0); }
+}
+@keyframes zoomInIn {
+  from { opacity: 0; transform: scale(0.92); filter: blur(14px); }
+  to   { opacity: 1; transform: scale(1);    filter: blur(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view-zoom-out, .view-zoom-in { animation: none; }
+  .img-reveal { opacity: 1; filter: none; transform: none; }
+}

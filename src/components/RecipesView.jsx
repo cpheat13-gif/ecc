@@ -1,15 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import RecipeImportSheet from './RecipeImportSheet';
-import { EmojiHero, PersonMacroLine } from './ui';
+import { PersonMacroLine } from './ui';
+import FoodImage from './FoodImage';
+import { ensureRecipeImage } from '../utils/images';
 
 function RecipeRow({ recipe, onOpen, onDelete }) {
+  const { dispatch } = useApp();
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  useEffect(() => {
+    ensureRecipeImage(recipe, dispatch);
+  }, [recipe?.name]);
 
   return (
     <div>
       <div className="flex items-start gap-4 cursor-pointer active:opacity-70 transition-opacity" onClick={onOpen}>
-        <EmojiHero recipe={recipe} size="text-[52px]" className="mt-1" />
+        <FoodImage recipe={recipe} size="w-[72px] h-[72px]" rounded="rounded-[20px]" emojiSize="text-[52px]" className="mt-1 shrink-0" />
 
         <div className="flex-1 min-w-0">
           <h3 className="font-display text-xl font-semibold text-stone-900 leading-snug">{recipe.name}</h3>

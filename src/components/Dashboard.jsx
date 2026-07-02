@@ -1,6 +1,8 @@
+import { useEffect, useRef } from 'react';
 import { useApp, DAYS } from '../context/AppContext';
 import DayView from './DayView';
 import { GhostCircle } from './ui';
+import { attachPinch } from '../utils/pinch';
 
 const DAY_FULL = {
   monday: 'Monday', tuesday: 'Tuesday', wednesday: 'Wednesday',
@@ -16,14 +18,35 @@ function SettingsIcon() {
   );
 }
 
+function GridIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1.5" y="1.5" width="5" height="5" rx="1.5" />
+      <rect x="9.5" y="1.5" width="5" height="5" rx="1.5" />
+      <rect x="1.5" y="9.5" width="5" height="5" rx="1.5" />
+      <rect x="9.5" y="9.5" width="5" height="5" rx="1.5" />
+    </svg>
+  );
+}
+
 export default function Dashboard() {
   const { state, dispatch } = useApp();
   const { activeDay } = state;
+  const rootRef = useRef(null);
 
   const hasMeals = (day) => (state.weekConfig[day]?.meals || []).length > 0;
 
+  // Pinch fingers together to zoom out into the Menu catalog
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+    return attachPinch(el, {
+      onZoomOut: () => dispatch({ type: 'SET_VIEW', view: 'timeline' }),
+    });
+  }, [dispatch]);
+
   return (
-    <div className="min-h-screen pb-36">
+    <div ref={rootRef} className="min-h-screen pb-36">
       {/* Top row: day strip + settings */}
       <div className="px-5 pt-14 flex items-center justify-between">
         <div className="flex gap-1">
@@ -47,9 +70,14 @@ export default function Dashboard() {
             );
           })}
         </div>
-        <GhostCircle onClick={() => dispatch({ type: 'SET_VIEW', view: 'settings' })} title="Settings">
-          <SettingsIcon />
-        </GhostCircle>
+        <div className="flex gap-1.5">
+          <GhostCircle onClick={() => dispatch({ type: 'SET_VIEW', view: 'timeline' })} title="View menu catalog">
+            <GridIcon />
+          </GhostCircle>
+          <GhostCircle onClick={() => dispatch({ type: 'SET_VIEW', view: 'settings' })} title="Settings">
+            <SettingsIcon />
+          </GhostCircle>
+        </div>
       </div>
 
       {/* Editorial header */}
