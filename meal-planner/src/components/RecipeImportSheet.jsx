@@ -1,48 +1,40 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { EmojiHero, PersonMacroLine, GhostCircle, InkPill } from './ui';
 
 function RecipePreview({ recipe, onSave, onBack }) {
   return (
-    <div className="space-y-5">
-      <div className="bg-stone-50 rounded-2xl p-4 border border-stone-100">
-        <h3 className="text-lg font-bold text-stone-900 leading-snug">{recipe.name}</h3>
-        {recipe.cookTime && (
-          <p className="text-sm text-stone-400 font-medium mt-0.5">{recipe.cookTime}</p>
-        )}
-        {recipe.macros && (
-          <div className="flex gap-2 mt-3">
-            {recipe.macros.connor && (
-              <div className="flex-1 bg-sky-50 rounded-xl px-3 py-2">
-                <div className="text-[10px] font-bold uppercase tracking-widest text-sky-500 mb-0.5">Connor</div>
-                <div className="text-xs text-sky-700 font-bold tabular-nums">{recipe.macros.connor.calories} kcal</div>
-                <div className="text-[10px] text-sky-500">P {recipe.macros.connor.protein}g · C {recipe.macros.connor.carbs}g · F {recipe.macros.connor.fat}g</div>
-              </div>
-            )}
-            {recipe.macros.isa && (
-              <div className="flex-1 bg-violet-50 rounded-xl px-3 py-2">
-                <div className="text-[10px] font-bold uppercase tracking-widest text-violet-500 mb-0.5">Isa</div>
-                <div className="text-xs text-violet-700 font-bold tabular-nums">{recipe.macros.isa.calories} kcal</div>
-                <div className="text-[10px] text-violet-500">P {recipe.macros.isa.protein}g · C {recipe.macros.isa.carbs}g · F {recipe.macros.isa.fat}g</div>
-              </div>
-            )}
-          </div>
-        )}
+    <div className="space-y-6">
+      <div className="flex items-start gap-4">
+        <EmojiHero recipe={recipe} size="text-[52px]" className="mt-1" />
+        <div className="flex-1 min-w-0">
+          <h3 className="font-display text-xl font-bold text-stone-900 leading-snug">{recipe.name}</h3>
+          {recipe.cookTime && (
+            <p className="text-[13px] text-stone-400 font-medium mt-0.5">{recipe.cookTime}</p>
+          )}
+          {recipe.macros && (
+            <div className="space-y-1.5 mt-3">
+              <PersonMacroLine person="connor" label="Connor" data={recipe.macros.connor} />
+              <PersonMacroLine person="isa" label="Isa" data={recipe.macros.isa} />
+            </div>
+          )}
+        </div>
       </div>
 
       {recipe.ingredients?.length > 0 && (
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-400 mb-2">
             Ingredients ({recipe.ingredients.length})
           </p>
-          <div className="space-y-1.5">
+          <div>
             {recipe.ingredients.slice(0, 7).map((ing, i) => (
-              <div key={i} className="flex justify-between text-sm">
-                <span className="text-stone-700 font-medium">{ing.item}</span>
-                <span className="text-stone-400 ml-4 shrink-0">{ing.quantity} {ing.unit}</span>
+              <div key={i} className="flex justify-between items-baseline py-2 border-b border-stone-900/[0.05] last:border-0">
+                <span className="text-[15px] text-stone-800 font-medium">{ing.item}</span>
+                <span className="text-[13px] text-stone-400 ml-4 shrink-0 tabular-nums">{ing.quantity} {ing.unit}</span>
               </div>
             ))}
             {recipe.ingredients.length > 7 && (
-              <p className="text-xs text-stone-400 pt-1">+{recipe.ingredients.length - 7} more</p>
+              <p className="text-xs text-stone-400 pt-2">+{recipe.ingredients.length - 7} more</p>
             )}
           </div>
         </div>
@@ -50,7 +42,7 @@ function RecipePreview({ recipe, onSave, onBack }) {
 
       {recipe.steps?.length > 0 && (
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-400 mb-2">
             Steps ({recipe.steps.length})
           </p>
           <p className="text-sm text-stone-600 leading-relaxed line-clamp-2">{recipe.steps[0]}</p>
@@ -60,19 +52,16 @@ function RecipePreview({ recipe, onSave, onBack }) {
         </div>
       )}
 
-      <div className="flex gap-2 pt-1">
+      <div className="flex gap-2.5 pt-1">
         <button
           onClick={onBack}
-          className="px-4 py-3 rounded-xl border border-stone-200 text-stone-600 text-sm font-semibold active:scale-95 transition-all"
+          className="px-6 py-3.5 rounded-full border border-stone-900/10 text-stone-600 text-sm font-semibold active:bg-stone-900/5 transition-colors"
         >
           ← Back
         </button>
-        <button
-          onClick={onSave}
-          className="flex-1 py-3 bg-emerald-600 text-white text-sm font-semibold rounded-xl active:scale-95 transition-all shadow-sm"
-        >
-          Save to My Recipes
-        </button>
+        <InkPill onClick={onSave} className="flex-1 py-3.5 text-sm">
+          Save to Recipes
+        </InkPill>
       </div>
     </div>
   );
@@ -122,45 +111,40 @@ export default function RecipeImportSheet({ onClose }) {
 
   return (
     <div className="fixed inset-0 z-[60] flex flex-col justify-end">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-stone-900/30 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative bg-white rounded-t-3xl max-h-[92vh] flex flex-col shadow-2xl">
+      <div className="relative bg-[#fdfaf6] rounded-t-[32px] max-h-[92vh] flex flex-col shadow-2xl">
         <div className="flex justify-center pt-3 pb-1 shrink-0">
-          <div className="w-10 h-1 bg-stone-200 rounded-full" />
+          <div className="w-10 h-1 bg-stone-900/10 rounded-full" />
         </div>
 
-        <div className="px-5 pb-4 shrink-0 border-b border-stone-100">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-stone-900 text-xl font-bold">Add Recipe</h2>
-            <button
-              onClick={onClose}
-              className="w-9 h-9 flex items-center justify-center rounded-xl bg-stone-100 text-stone-500 hover:text-stone-800 transition-colors"
-            >
-              ✕
-            </button>
+        <div className="px-6 pb-4 shrink-0">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display text-2xl font-bold text-stone-900">Add recipe</h2>
+            <GhostCircle onClick={onClose}>✕</GhostCircle>
           </div>
 
-          <div className="flex gap-1 p-1 bg-stone-100 rounded-xl">
+          <div className="flex gap-1.5">
             <button
               onClick={() => switchTab('tiktok')}
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                tab === 'tiktok' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500'
+              className={`px-4 py-1.5 text-xs font-semibold rounded-full transition-all ${
+                tab === 'tiktok' ? 'bg-stone-900 text-[#fbf6f0]' : 'text-stone-400 border border-stone-900/[0.08]'
               }`}
             >
               TikTok URL
             </button>
             <button
               onClick={() => switchTab('paste')}
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                tab === 'paste' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500'
+              className={`px-4 py-1.5 text-xs font-semibold rounded-full transition-all ${
+                tab === 'paste' ? 'bg-stone-900 text-[#fbf6f0]' : 'text-stone-400 border border-stone-900/[0.08]'
               }`}
             >
-              Paste Recipe
+              Paste recipe
             </button>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 py-4 pb-10 space-y-5">
           {preview ? (
             <RecipePreview recipe={preview} onSave={save} onBack={() => setPreview(null)} />
           ) : (
@@ -168,36 +152,36 @@ export default function RecipeImportSheet({ onClose }) {
               {tab === 'tiktok' ? (
                 <div className="space-y-3">
                   <p className="text-sm text-stone-500 leading-relaxed">
-                    Paste a TikTok video URL. We'll pull the caption and use Claude to structure it as a recipe.
+                    Paste a TikTok video URL. We'll pull the caption and structure it into a recipe.
                   </p>
                   <input
                     value={url}
                     onChange={e => setUrl(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && canParse && !loading && parse()}
                     placeholder="https://www.tiktok.com/@..."
-                    className="w-full bg-stone-50 text-stone-900 text-sm rounded-xl px-4 py-3 placeholder-stone-400 outline-none border border-stone-200 focus:border-emerald-400 transition-colors"
+                    className="w-full bg-white text-stone-900 text-[15px] rounded-full px-5 py-3.5 placeholder-stone-400 outline-none shadow-[0_4px_18px_rgba(80,40,16,0.08)] border border-stone-900/[0.04] focus:border-stone-900/20 transition-colors"
                   />
                   <p className="text-xs text-stone-400 leading-relaxed">
-                    Tip: if the recipe isn't in the caption, switch to "Paste Recipe" and paste the text directly.
+                    Tip: if the recipe isn't in the caption, switch to "Paste recipe" and paste the text directly.
                   </p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   <p className="text-sm text-stone-500 leading-relaxed">
-                    Paste any recipe — TikTok caption, website text, or your own notes. Claude will clean it up and fill in the details.
+                    Paste any recipe — TikTok caption, website text, or your own notes.
                   </p>
                   <textarea
                     value={text}
                     onChange={e => setText(e.target.value)}
                     placeholder="Paste your recipe here…"
                     rows={8}
-                    className="w-full bg-stone-50 text-stone-900 text-sm rounded-xl px-4 py-3 placeholder-stone-400 outline-none border border-stone-200 focus:border-emerald-400 transition-colors resize-none"
+                    className="w-full bg-white text-stone-900 text-[15px] rounded-3xl px-5 py-4 placeholder-stone-400 outline-none shadow-[0_4px_18px_rgba(80,40,16,0.08)] border border-stone-900/[0.04] focus:border-stone-900/20 transition-colors resize-none"
                   />
                 </div>
               )}
 
               {error && (
-                <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 space-y-1">
+                <div className="space-y-1.5">
                   <p className="text-red-600 text-sm">{error}</p>
                   {tab === 'tiktok' && (
                     <button
@@ -210,18 +194,22 @@ export default function RecipeImportSheet({ onClose }) {
                 </div>
               )}
 
-              <button
-                onClick={parse}
-                disabled={loading || !canParse}
-                className="w-full py-3.5 bg-emerald-600 text-white text-sm font-semibold rounded-xl disabled:opacity-40 active:scale-95 transition-all flex items-center justify-center gap-2"
-              >
+              <InkPill onClick={parse} disabled={loading || !canParse} className="w-full py-4 text-sm">
                 {loading ? (
                   <>
-                    <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                    Parsing recipe…
+                    <span className="flex gap-1 mr-1">
+                      {[0, 1, 2].map(i => (
+                        <span
+                          key={i}
+                          className="w-1 h-1 rounded-full bg-white/80 animate-bounce"
+                          style={{ animationDelay: `${i * 0.15}s` }}
+                        />
+                      ))}
+                    </span>
+                    Reading recipe…
                   </>
-                ) : 'Parse Recipe'}
-              </button>
+                ) : 'Parse recipe'}
+              </InkPill>
             </>
           )}
         </div>

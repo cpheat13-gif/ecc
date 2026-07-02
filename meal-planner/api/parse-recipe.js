@@ -30,6 +30,7 @@ ${recipeText.slice(0, 3000)}
 Return ONLY this JSON with no explanation or markdown:
 {
   "name": "",
+  "emoji": "",
   "cookTime": "",
   "ingredients": [{"item": "", "quantity": "", "unit": "", "category": ""}],
   "steps": [],
@@ -43,6 +44,7 @@ Return ONLY this JSON with no explanation or markdown:
 
 Rules:
 - ingredient category must be one of: Proteins, Produce, Dairy, Pantry, Canned & Jarred, Spices, Other
+- emoji: the one food emoji that best represents the finished dish
 - Use US store units (lbs, oz, cups, tbsp, tsp, count, etc.) — no metric
 - Estimate macros per serving for 2 servings total: Connor gets a larger protein portion (active male, ~170g protein/day target); Isa gets a smaller portion (active female, ~80g protein/day target, moderate sodium/potassium for kidney health)
 - highSodiumFlag: true if estimated sodium per serving likely exceeds 800mg

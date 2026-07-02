@@ -1,31 +1,30 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { GhostCircle, InkPill } from './ui';
 
 const MACROS = ['calories', 'protein', 'carbs', 'fat'];
 const MACRO_LABELS = { calories: 'Calories', protein: 'Protein', carbs: 'Carbs', fat: 'Fat' };
 const MACRO_UNITS  = { calories: 'kcal', protein: 'g', carbs: 'g', fat: 'g' };
 
-function PersonCard({ person, label, color, values, onChange }) {
-  const chipCls   = color === 'sky' ? 'text-sky-600 bg-sky-50' : 'text-violet-600 bg-violet-50';
-  const accentCls = color === 'sky' ? 'text-sky-500'           : 'text-violet-500';
+const PERSON_DOT = { connor: 'bg-sky-500', isa: 'bg-violet-500' };
 
+function PersonTargets({ person, label, values, onChange }) {
   return (
-    <div className="bg-white rounded-2xl shadow-[0_1px_10px_rgba(0,0,0,0.06)] border border-stone-100/80 overflow-hidden">
-      <div className="px-4 pt-4 pb-3 flex items-center gap-2 border-b border-stone-100">
-        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${chipCls}`}>{label}</span>
+    <div>
+      <div className="flex items-center gap-1.5 mb-4">
+        <span className={`w-1.5 h-1.5 rounded-full ${PERSON_DOT[person]}`} />
+        <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-stone-500">{label}</span>
       </div>
 
       {['training', 'rest'].map(dayType => (
-        <div key={dayType} className="px-4 py-4 border-b border-stone-50 last:border-0">
-          <div className={`text-[10px] font-bold uppercase tracking-widest mb-3 ${
-            dayType === 'training' ? accentCls : 'text-stone-400'
-          }`}>
+        <div key={dayType} className="mb-5 last:mb-0">
+          <p className="text-[11px] font-semibold text-stone-400 mb-2.5">
             {dayType === 'training' ? 'Training day' : 'Rest day'}
-          </div>
-          <div className="grid grid-cols-2 gap-2">
+          </p>
+          <div className="grid grid-cols-2 gap-2.5">
             {MACROS.map(macro => (
               <div key={macro}>
-                <label className="text-[10px] text-stone-400 font-medium uppercase tracking-wide block mb-1">
+                <label className="text-[10px] text-stone-400 font-medium uppercase tracking-wide block mb-1.5">
                   {MACRO_LABELS[macro]} ({MACRO_UNITS[macro]})
                 </label>
                 <input
@@ -33,7 +32,7 @@ function PersonCard({ person, label, color, values, onChange }) {
                   min="0"
                   value={values[dayType][macro]}
                   onChange={e => onChange(person, dayType, macro, Number(e.target.value))}
-                  className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-sm text-stone-900 text-right focus:outline-none focus:border-emerald-400 transition-colors"
+                  className="w-full bg-white/80 border border-stone-900/[0.07] rounded-2xl px-4 py-3 text-sm text-stone-900 text-right tabular-nums focus:outline-none focus:border-stone-900/25 transition-colors"
                 />
               </div>
             ))}
@@ -93,22 +92,21 @@ function DataBackup() {
   };
 
   return (
-    <div className="border-t border-stone-100 pt-2">
-      <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest mb-3 px-1">Data backup</p>
-      <div className="space-y-2">
+    <div>
+      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-400 mb-3">Data backup</p>
+      <div className="space-y-2.5">
         <button
           onClick={handleExport}
-          className="w-full py-3 text-sm font-medium text-stone-700 bg-white border border-stone-100 rounded-2xl shadow-[0_1px_6px_rgba(0,0,0,0.05)] flex items-center justify-center gap-2"
+          className="w-full py-3.5 text-sm font-semibold text-stone-700 border border-stone-900/10 rounded-full active:bg-stone-900/5 transition-colors flex items-center justify-center gap-2"
         >
-          <span>↓</span> Export all data
+          ↓ Export all data
         </button>
-        <label className={`w-full py-3 text-sm font-medium rounded-2xl border flex items-center justify-center gap-2 cursor-pointer transition-colors ${
+        <label className={`w-full py-3.5 text-sm font-semibold rounded-full border flex items-center justify-center gap-2 cursor-pointer transition-colors ${
           importOk
-            ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-            : 'bg-white border-stone-100 text-stone-700 shadow-[0_1px_6px_rgba(0,0,0,0.05)]'
+            ? 'border-stone-900 text-stone-900'
+            : 'border-stone-900/10 text-stone-700 active:bg-stone-900/5'
         }`}>
-          <span>{importOk ? '✓' : '↑'}</span>
-          {importOk ? 'Imported!' : 'Import from backup'}
+          {importOk ? '✓ Imported!' : '↑ Import from backup'}
           <input type="file" accept=".json" className="sr-only" onChange={handleImport} />
         </label>
         {importError && (
@@ -156,47 +154,39 @@ export default function SettingsView() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 pb-28">
-      <div className="px-4 pt-12 pb-4 flex items-center gap-3">
-        <button
-          onClick={() => dispatch({ type: 'SET_VIEW', view: 'dashboard' })}
-          className="w-9 h-9 flex items-center justify-center rounded-xl bg-stone-100 text-stone-600 hover:bg-stone-200 transition-colors text-lg"
-        >
-          ←
-        </button>
+    <div className="min-h-screen pb-16">
+      <div className="px-5 pt-14 pb-2 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-stone-900 tracking-tight">Settings</h1>
-          <p className="text-xs text-stone-400 mt-0.5">Macro targets — used when generating meals</p>
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-stone-400">Macro targets</p>
+          <h1 className="font-display text-[44px] font-bold text-stone-900 leading-[1.05] tracking-tight mt-1">
+            Settings
+          </h1>
         </div>
+        <GhostCircle onClick={() => dispatch({ type: 'SET_VIEW', view: 'dashboard' })} className="mt-2">
+          ✕
+        </GhostCircle>
       </div>
 
-      <div className="px-4 space-y-4">
-        <PersonCard person="connor" label="Connor" color="sky"    values={draft.connor} onChange={handleChange} />
-        <PersonCard person="isa"    label="Isa"    color="violet" values={draft.isa}    onChange={handleChange} />
+      <div className="px-5 pt-6 space-y-10">
+        <PersonTargets person="connor" label="Connor" values={draft.connor} onChange={handleChange} />
+        <PersonTargets person="isa"    label="Isa"    values={draft.isa}    onChange={handleChange} />
 
-        <button
-          onClick={handleSave}
-          className={`w-full py-4 rounded-2xl font-semibold text-base transition-all shadow-sm ${
-            saved
-              ? 'bg-emerald-50 text-emerald-700'
-              : 'bg-emerald-600 text-white active:scale-95'
-          }`}
-        >
-          {saved ? '✓ Saved' : 'Save Changes'}
-        </button>
+        <InkPill onClick={handleSave} className="w-full py-4 text-base">
+          {saved ? '✓ Saved' : 'Save changes'}
+        </InkPill>
 
-        <div className="border-t border-stone-100 pt-2">
-          <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest mb-3 px-1">Meal plan</p>
-          <div className="space-y-2">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-400 mb-3">Meal plan</p>
+          <div className="space-y-2.5">
             <button
               onClick={() => dispatch({ type: 'SET_VIEW', view: 'setup' })}
-              className="w-full py-3 text-sm font-medium text-stone-700 bg-white border border-stone-100 rounded-2xl shadow-[0_1px_6px_rgba(0,0,0,0.05)]"
+              className="w-full py-3.5 text-sm font-semibold text-stone-700 border border-stone-900/10 rounded-full active:bg-stone-900/5 transition-colors"
             >
               ↻ Reconfigure week schedule
             </button>
             <button
               onClick={handleReset}
-              className="w-full py-3 text-sm font-medium text-rose-400 hover:text-rose-600 transition-colors"
+              className="w-full py-3 text-sm font-medium text-red-400 active:text-red-600 transition-colors"
             >
               Reset to defaults
             </button>

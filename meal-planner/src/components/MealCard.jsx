@@ -1,10 +1,18 @@
 import { useApp } from '../context/AppContext';
+import { EmojiHero, PersonMacroLine, InkPill, GhostCircle } from './ui';
 
 const MEAL_LABEL = {
   breakfast: 'Breakfast',
   lunch:     'Lunch',
   dinner:    'Dinner',
   snack:     'Snack',
+};
+
+const MEAL_PLACEHOLDER = {
+  breakfast: '🍳',
+  lunch:     '🥗',
+  dinner:    '🍽️',
+  snack:     '🍎',
 };
 
 export default function MealCard({ day, mealType, recipe }) {
@@ -23,81 +31,64 @@ export default function MealCard({ day, mealType, recipe }) {
 
   if (!recipe) {
     return (
-      <div className="rounded-2xl bg-stone-50 border border-dashed border-stone-200 p-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-[10px] font-semibold text-stone-400 uppercase tracking-widest mb-1">
-              {MEAL_LABEL[mealType]}
-            </div>
-            <div className="text-sm text-stone-400 font-medium">Nothing planned</div>
-          </div>
-          <button
-            onClick={openOptions}
-            disabled={isGenerating}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold transition-all active:scale-95 disabled:opacity-50 shadow-sm shadow-emerald-900/10"
-          >
+      <div>
+        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-400 mb-3">
+          {MEAL_LABEL[mealType]}
+        </p>
+        <div className="flex items-center gap-4">
+          <span className="w-16 h-16 rounded-full bg-stone-900/[0.04] flex items-center justify-center text-2xl opacity-50 select-none" aria-hidden="true">
+            {MEAL_PLACEHOLDER[mealType]}
+          </span>
+          <span className="flex-1 text-sm text-stone-400 font-medium">Nothing planned</span>
+          <InkPill onClick={openOptions} disabled={isGenerating} className="px-5 py-2.5 text-sm">
             {isGenerating ? (
               <>
                 <span className="w-3 h-3 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                Generating
+                Cooking up…
               </>
             ) : 'Pick meal'}
-          </button>
+          </InkPill>
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      className="rounded-2xl bg-white overflow-hidden cursor-pointer active:scale-[0.99] transition-transform shadow-[0_1px_10px_rgba(0,0,0,0.07)] border border-stone-100/80"
-      onClick={handleOpen}
-    >
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-2 mb-3">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="text-[10px] font-semibold text-stone-400 uppercase tracking-widest">
-                {MEAL_LABEL[mealType]}
-              </span>
-              {recipe.highSodiumFlag && (
-                <span className="text-[10px] bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded-full font-semibold">
-                  High sodium
-                </span>
-              )}
-            </div>
-            <h3 className="font-semibold text-stone-900 leading-snug truncate">
-              {recipe.name}
-            </h3>
-            <div className="text-xs text-stone-400 mt-0.5 font-medium">{recipe.cookTime}</div>
+    <div>
+      <div className="flex items-center gap-2 mb-3">
+        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-400">
+          {MEAL_LABEL[mealType]}
+        </p>
+        {recipe.highSodiumFlag && (
+          <span className="text-[10px] text-amber-600 font-semibold">· High sodium</span>
+        )}
+      </div>
+
+      <div className="flex items-start gap-4 cursor-pointer active:opacity-70 transition-opacity" onClick={handleOpen}>
+        <EmojiHero recipe={recipe} mealType={mealType} size="text-[52px]" className="mt-1" />
+
+        <div className="flex-1 min-w-0">
+          <h3 className="font-display text-xl font-semibold text-stone-900 leading-snug">
+            {recipe.name}
+          </h3>
+          <p className="text-[13px] text-stone-400 font-medium mt-0.5">{recipe.cookTime}</p>
+
+          <div className="space-y-1.5 mt-3">
+            <PersonMacroLine person="connor" label="Connor" data={recipe.macros?.connor} />
+            <PersonMacroLine person="isa" label="Isa" data={recipe.macros?.isa} />
           </div>
-
-          <button
-            onClick={openOptions}
-            disabled={isGenerating}
-            title="Pick a different meal"
-            className="shrink-0 w-8 h-8 flex items-center justify-center rounded-xl bg-stone-100 text-stone-500 text-sm transition-colors disabled:opacity-50 active:bg-stone-200"
-          >
-            {isGenerating
-              ? <span className="w-3 h-3 rounded-full border-2 border-stone-400/30 border-t-stone-400 animate-spin block" />
-              : '↺'}
-          </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            { label: 'Connor', data: recipe.macros?.connor, bg: 'bg-sky-50', text: 'text-sky-700', muted: 'text-sky-500' },
-            { label: 'Isa',    data: recipe.macros?.isa,    bg: 'bg-violet-50', text: 'text-violet-700', muted: 'text-violet-500' },
-          ].map(({ label, data, bg, text, muted }) => data && (
-            <div key={label} className={`rounded-xl px-3 py-2.5 ${bg}`}>
-              <div className={`text-[10px] font-semibold uppercase tracking-widest mb-1 ${muted}`}>{label}</div>
-              <div className={`text-sm font-bold ${text} tabular-nums`}>{data.calories} kcal</div>
-              <div className={`text-[10px] mt-0.5 ${muted}`}>
-                P {data.protein}g · C {data.carbs}g · F {data.fat}g
-              </div>
-            </div>
-          ))}
-        </div>
+        <GhostCircle
+          onClick={openOptions}
+          disabled={isGenerating}
+          title="Pick a different meal"
+          className="mt-1"
+        >
+          {isGenerating
+            ? <span className="w-3 h-3 rounded-full border-2 border-stone-400/30 border-t-stone-400 animate-spin block" />
+            : '↺'}
+        </GhostCircle>
       </div>
     </div>
   );

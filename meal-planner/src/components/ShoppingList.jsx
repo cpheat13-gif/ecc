@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { aggregateShoppingList, CATEGORY_ORDER } from '../utils/shopping';
+import { GradBar } from './ui';
 
 const CATEGORY_ICONS = {
   'Proteins':        '🥩',
@@ -18,64 +19,59 @@ function CategorySection({ category, items, checked, onToggle }) {
   const allDone   = doneCount === items.length;
 
   return (
-    <div className="rounded-2xl bg-white shadow-[0_1px_10px_rgba(0,0,0,0.06)] border border-stone-100/80 overflow-hidden">
+    <div>
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-4 py-3.5 text-left"
+        className="w-full flex items-center justify-between py-2 text-left"
       >
         <div className="flex items-center gap-2.5">
-          <span className="text-base">{CATEGORY_ICONS[category] || '📦'}</span>
-          <span className="font-semibold text-stone-800 text-sm">{category}</span>
-          <span className="text-[10px] font-semibold text-stone-400 bg-stone-100 px-1.5 py-0.5 rounded-full">
-            {items.length}
-          </span>
+          <span className="emoji-hero text-xl">{CATEGORY_ICONS[category] || '📦'}</span>
+          <span className="font-display font-semibold text-stone-900 text-base">{category}</span>
         </div>
         <div className="flex items-center gap-3">
-          {doneCount > 0 && (
-            <span className={`text-xs font-medium ${allDone ? 'text-emerald-600' : 'text-stone-400'}`}>
-              {doneCount}/{items.length}
-            </span>
-          )}
-          <div className={`w-4 h-4 flex items-center justify-center text-stone-300 transition-transform ${open ? '' : 'rotate-180'}`}>
+          <span className={`text-xs font-semibold tabular-nums ${allDone ? 'text-grad' : 'text-stone-400'}`}>
+            {doneCount}/{items.length}
+          </span>
+          <span className={`text-stone-300 transition-transform ${open ? '' : 'rotate-180'}`}>
             <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M1 5L5 1L9 5" />
             </svg>
-          </div>
+          </span>
         </div>
       </button>
 
       {open && (
-        <div className="border-t border-stone-100">
-          {items.map((item, i) => (
+        <div>
+          {items.map((item) => (
             <label
               key={item.key}
-              className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${
-                i !== 0 ? 'border-t border-stone-50' : ''
-              } ${checked[item.key] ? 'opacity-40' : ''}`}
+              className={`flex items-center gap-3.5 py-3 cursor-pointer border-b border-stone-900/[0.05] transition-opacity ${
+                checked[item.key] ? 'opacity-35' : ''
+              }`}
             >
               <button
                 onClick={() => onToggle(item.key)}
-                className={`shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                className={`shrink-0 w-[22px] h-[22px] rounded-full border-2 flex items-center justify-center transition-all ${
                   checked[item.key]
-                    ? 'bg-emerald-500 border-emerald-500'
-                    : 'border-stone-200 hover:border-stone-300'
+                    ? 'bg-stone-900 border-stone-900'
+                    : 'border-stone-300'
                 }`}
               >
                 {checked[item.key] && (
-                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="#fbf6f0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M1 4L3.5 6.5L9 1" />
                   </svg>
                 )}
               </button>
               <div className="flex-1 min-w-0">
-                <span className={`text-sm ${checked[item.key] ? 'line-through text-stone-400' : 'text-stone-800 font-medium'}`}>
+                <span className={`text-[15px] ${checked[item.key] ? 'line-through text-stone-400' : 'text-stone-800 font-medium'}`}>
                   {item.item}
                 </span>
                 {item.occurrences > 1 && (
                   <span className="ml-1.5 text-xs text-stone-400">×{item.occurrences}</span>
                 )}
               </div>
-              <span className="shrink-0 text-xs text-stone-400 tabular-nums">
+              <span className="shrink-0 text-[13px] text-stone-400 tabular-nums">
                 {item.quantity} {item.unit}
               </span>
             </label>
@@ -100,46 +96,43 @@ export default function ShoppingList() {
   const activeCats = CATEGORY_ORDER.filter(c => grouped[c]?.length > 0);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)]">
-      <div className="shrink-0 px-4 pt-12 pb-4 flex items-end justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-stone-900 tracking-tight">Shopping List</h1>
-          <p className="text-sm text-stone-400 mt-0.5 font-medium">
-            {totalItems === 0
-              ? 'Generate meals to build your list'
-              : `${totalItems} items · ${doneCount} checked`}
-          </p>
+    <div className="min-h-screen pb-36">
+      <div className="px-5 pt-14 pb-2">
+        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-stone-400">This week's list</p>
+        <div className="flex items-end justify-between">
+          <h1 className="font-display text-[44px] font-bold text-stone-900 leading-[1.05] tracking-tight mt-1">
+            Shopping
+          </h1>
+          {doneCount > 0 && (
+            <button
+              onClick={handleClear}
+              className="text-xs text-stone-400 active:text-red-500 transition-colors font-medium pb-3"
+            >
+              Clear checked
+            </button>
+          )}
         </div>
-        {doneCount > 0 && (
-          <button
-            onClick={handleClear}
-            className="text-xs text-stone-400 hover:text-rose-500 transition-colors font-medium"
-          >
-            Clear checked
-          </button>
+        {totalItems > 0 && (
+          <p className="text-sm text-stone-400 font-medium">
+            <span className="font-display font-bold text-grad tabular-nums text-base">{doneCount}</span>
+            {' '}of {totalItems} items
+          </p>
         )}
       </div>
 
       {totalItems === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center px-8">
-          <div className="w-14 h-14 rounded-2xl bg-stone-100 flex items-center justify-center mx-auto mb-4 text-2xl">
-            🛒
-          </div>
-          <p className="text-stone-500 font-semibold text-sm">Nothing here yet</p>
-          <p className="text-stone-400 text-xs mt-1">Generate meals in the Week view and they'll appear here</p>
+        <div className="flex flex-col items-center justify-center text-center px-8 pt-24">
+          <div className="emoji-hero text-5xl mb-5">🛒</div>
+          <p className="text-stone-600 font-semibold text-sm">Nothing here yet</p>
+          <p className="text-stone-400 text-xs mt-1">Plan meals in the Week view and they'll appear here</p>
         </div>
       ) : (
         <>
-          <div className="px-4 mb-4 shrink-0">
-            <div className="h-1.5 bg-stone-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-emerald-500 rounded-full transition-all duration-300"
-                style={{ width: totalItems ? `${(doneCount / totalItems) * 100}%` : '0%' }}
-              />
-            </div>
+          <div className="px-5 mt-2 mb-6">
+            <GradBar pct={totalItems ? (doneCount / totalItems) * 100 : 0} className="h-1" />
           </div>
 
-          <div className="flex-1 overflow-y-auto px-4 pb-8 space-y-3">
+          <div className="px-5 space-y-7">
             {activeCats.map(cat => (
               <CategorySection
                 key={cat}

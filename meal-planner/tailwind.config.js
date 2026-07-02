@@ -4,14 +4,12 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Outfit', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        sans: ['Figtree', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        display: ['"Bricolage Grotesque"', 'Figtree', '-apple-system', 'sans-serif'],
       },
       colors: {
-        brand: {
-          50:  '#ecfdf5',
-          500: '#10b981',
-          600: '#059669',
-        },
+        cream: '#fbf7f2',
+        ink: '#1c1917',
       },
     },
   },
