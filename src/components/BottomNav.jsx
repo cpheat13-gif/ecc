@@ -1,48 +1,40 @@
 import { useApp } from '../context/AppContext';
 
-function CalendarIcon({ active }) {
+function CalendarIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="20" height="20" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <rect x="3" y="4" width="16" height="15" rx="2.5" />
       <line x1="3" y1="9" x2="19" y2="9" />
       <line x1="7.5" y1="3" x2="7.5" y2="6" />
       <line x1="14.5" y1="3" x2="14.5" y2="6" />
-      {active && (
-        <>
-          <rect x="6.5" y="12" width="3" height="2.5" rx="0.75" fill="currentColor" stroke="none" />
-          <rect x="13" y="12" width="3" height="2.5" rx="0.75" fill="currentColor" stroke="none" />
-        </>
-      )}
     </svg>
   );
 }
 
-function CartIcon({ active }) {
+function CartIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="20" height="20" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M2 3h2.2l2.5 11h9.6l2-7.5H6.8" />
-      <circle cx="9" cy="18.5" r="1.5" fill={active ? 'currentColor' : 'none'} />
-      <circle cx="16" cy="18.5" r="1.5" fill={active ? 'currentColor' : 'none'} />
+      <circle cx="9" cy="18.5" r="1.5" />
+      <circle cx="16" cy="18.5" r="1.5" />
     </svg>
   );
 }
 
-function StarIcon({ active }) {
+function StarIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="20" height="20" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M11 2.5l2.4 6.2 6.6.6-4.9 4.4 1.4 6.4L11 16.8l-5.5 3.3 1.4-6.4L2 9.3l6.6-.6z" />
     </svg>
   );
 }
 
-function BookIcon({ active }) {
+function BookIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 3h11a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill={active ? 'currentColor' : 'none'} fillOpacity={active ? 0.08 : 0} />
+    <svg width="20" height="20" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 3h11a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
       <line x1="2" y1="8" x2="17" y2="8" />
       <line x1="6" y1="3" x2="6" y2="8" />
-      {active && <line x1="6" y1="12" x2="13" y2="12" strokeWidth="2" />}
-      {active && <line x1="6" y1="15.5" x2="11" y2="15.5" strokeWidth="2" />}
     </svg>
   );
 }
@@ -58,30 +50,24 @@ export default function BottomNav() {
   const { state, dispatch } = useApp();
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40">
-      <div className="max-w-[430px] mx-auto">
-        <div className="bg-white/90 backdrop-blur-xl border-t border-stone-100 px-1 pb-safe-bottom">
-          <div className="flex">
-            {TABS.map(({ id, label, Icon }) => {
-              const active = state.view === id;
-              return (
-                <button
-                  key={id}
-                  onClick={() => dispatch({ type: 'SET_VIEW', view: id })}
-                  className={`flex-1 flex flex-col items-center gap-1 py-2 transition-colors ${
-                    active ? 'text-emerald-700' : 'text-stone-400'
-                  }`}
-                >
-                  <div className={`flex items-center justify-center rounded-2xl px-5 py-1.5 transition-colors ${
-                    active ? 'bg-emerald-50' : ''
-                  }`}>
-                    <Icon active={active} />
-                  </div>
-                  <span className="text-[10px] font-semibold tracking-wide">{label}</span>
-                </button>
-              );
-            })}
-          </div>
+    <div className="fixed bottom-0 left-0 right-0 z-40 pointer-events-none">
+      <div className="max-w-[430px] mx-auto px-5 pb-5 pb-safe-bottom">
+        <div className="pointer-events-auto flex gap-1 p-1.5 rounded-full bg-white/75 backdrop-blur-2xl border border-stone-900/[0.06] shadow-[0_14px_40px_rgba(80,40,16,0.16)]">
+          {TABS.map(({ id, label, Icon }) => {
+            const active = state.view === id;
+            return (
+              <button
+                key={id}
+                onClick={() => dispatch({ type: 'SET_VIEW', view: id })}
+                className={`flex-1 flex flex-col items-center gap-0.5 py-2 rounded-full transition-all ${
+                  active ? 'bg-stone-900 text-[#fbf6f0]' : 'text-stone-400'
+                }`}
+              >
+                <Icon />
+                <span className="text-[9px] font-semibold tracking-wide">{label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
