@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import CookingMode from './CookingMode';
-import { EmojiHero, Cal, PCF, GhostCircle, InkPill } from './ui';
+import { Cal, PCF, GhostCircle, InkPill } from './ui';
+import FoodImage from './FoodImage';
+import { ensureRecipeImage } from '../utils/images';
 
 const CATEGORY_ICONS = {
   'Proteins':        '🥩',
@@ -54,6 +56,10 @@ export default function RecipeModal() {
 
   // Reset cooking mode when recipe changes
   useEffect(() => { setCooking(false); }, [selectedMeal]);
+
+  useEffect(() => {
+    if (selectedMeal?.recipe) ensureRecipeImage(selectedMeal.recipe, dispatch);
+  }, [selectedMeal?.recipe?.name]);
 
   if (!selectedMeal) return null;
 
@@ -109,7 +115,7 @@ export default function RecipeModal() {
         {/* Header */}
         <div className="px-6 pb-5 shrink-0">
           <div className="flex items-start gap-4">
-            <EmojiHero recipe={recipe} mealType={mealType} size="text-[56px]" className="mt-1" />
+            <FoodImage recipe={recipe} mealType={mealType} size="w-[76px] h-[76px]" rounded="rounded-[22px]" emojiSize="text-[56px]" className="mt-1 shrink-0" />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-400 capitalize">
@@ -168,6 +174,13 @@ export default function RecipeModal() {
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto px-6 pb-12 space-y-8">
+          {/* Studio photo banner */}
+          {recipe.imageUrl && (
+            <div className="rounded-[26px] overflow-hidden aspect-[16/10] shadow-[0_18px_44px_rgba(76,40,16,0.2)]">
+              <img src={recipe.imageUrl} alt={recipe.name} className="w-full h-full object-cover" />
+            </div>
+          )}
+
           {/* TikTok source link */}
           {isLibrary && recipe.sourceTikTokUrl && (
             <a

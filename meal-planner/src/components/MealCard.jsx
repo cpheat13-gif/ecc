@@ -1,5 +1,8 @@
+import { useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { EmojiHero, PersonMacroLine, InkPill, GhostCircle } from './ui';
+import { PersonMacroLine, InkPill, GhostCircle } from './ui';
+import FoodImage from './FoodImage';
+import { ensureRecipeImage } from '../utils/images';
 
 const MEAL_LABEL = {
   breakfast: 'Breakfast',
@@ -19,6 +22,11 @@ export default function MealCard({ day, mealType, recipe }) {
   const { state, dispatch } = useApp();
   const isGenerating =
     state.generatingMeal?.day === day && state.generatingMeal?.type === mealType;
+
+  // Kick off studio photo generation once the meal exists
+  useEffect(() => {
+    if (recipe) ensureRecipeImage(recipe, dispatch);
+  }, [recipe?.name]);
 
   const openOptions = (e) => {
     if (e) e.stopPropagation();
@@ -65,7 +73,7 @@ export default function MealCard({ day, mealType, recipe }) {
       </div>
 
       <div className="flex items-start gap-4 cursor-pointer active:opacity-70 transition-opacity" onClick={handleOpen}>
-        <EmojiHero recipe={recipe} mealType={mealType} size="text-[52px]" className="mt-1" />
+        <FoodImage recipe={recipe} mealType={mealType} size="w-[72px] h-[72px]" rounded="rounded-[20px]" emojiSize="text-[52px]" className="mt-1 shrink-0" />
 
         <div className="flex-1 min-w-0">
           <h3 className="font-display text-xl font-semibold text-stone-900 leading-snug">

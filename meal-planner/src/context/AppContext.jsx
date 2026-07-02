@@ -145,6 +145,29 @@ function reducer(state, action) {
     case 'DELETE_CUSTOM_RECIPE':
       return { ...state, customRecipes: (state.customRecipes || []).filter(r => r.id !== action.id) };
 
+    case 'SET_RECIPE_IMAGE': {
+      const { name, url } = action;
+      const patch = r => (r && r.name === name && !r.imageUrl) ? { ...r, imageUrl: url } : r;
+      const mealPlan = {};
+      for (const [day, meals] of Object.entries(state.mealPlan || {})) {
+        mealPlan[day] = {};
+        for (const [type, r] of Object.entries(meals || {})) mealPlan[day][type] = patch(r);
+      }
+      const starredMeals = {};
+      for (const [key, entry] of Object.entries(state.starredMeals || {})) {
+        starredMeals[key] = { ...entry, recipe: patch(entry.recipe) };
+      }
+      return {
+        ...state,
+        mealPlan,
+        starredMeals,
+        customRecipes: (state.customRecipes || []).map(patch),
+        selectedMeal: state.selectedMeal
+          ? { ...state.selectedMeal, recipe: patch(state.selectedMeal.recipe) }
+          : null,
+      };
+    }
+
     case 'RESTORE_CUSTOM_RECIPES':
       return { ...state, customRecipes: action.recipes };
 

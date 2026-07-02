@@ -4,8 +4,23 @@ import { getMealTargets } from '../utils/macros';
 import { buildOptionsPrompt, buildMealPrompt, generateMeal } from '../utils/prompt';
 import { EmojiHero, PCF, Cal, GhostCircle, InkPill } from './ui';
 
-// Typing indicator from the reference — three staggered dots.
+const THINKING_PHRASES = [
+  'Plating ideas…',
+  'Balancing macros…',
+  'Raiding the pantry…',
+  'Tasting as it goes…',
+  'Checking the Whole Foods aisles…',
+];
+
+// Typing indicator — bouncing dots + shimmering status line that rotates.
 function ThinkingDots({ label }) {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setIdx(i => i + 1), 1800);
+    return () => clearInterval(id);
+  }, []);
+  const phrase = label || THINKING_PHRASES[idx % THINKING_PHRASES.length];
+
   return (
     <div className="flex items-center gap-3 py-16 justify-center">
       <span className="flex gap-1">
@@ -17,7 +32,7 @@ function ThinkingDots({ label }) {
           />
         ))}
       </span>
-      <span className="text-[13px] text-stone-500 font-medium">{label}</span>
+      <span className="text-[13px] font-semibold shimmer-text">{phrase}</span>
     </div>
   );
 }
@@ -245,7 +260,7 @@ export default function MealOptionsSheet() {
           {tab === 'suggestions' ? (
             <>
               {loading ? (
-                <ThinkingDots label={currentSearch ? `Finding ${currentSearch} ideas…` : 'Finding meals…'} />
+                <ThinkingDots label={currentSearch ? `Finding ${currentSearch} ideas…` : null} />
               ) : error ? (
                 <div className="text-center py-10">
                   <div className="emoji-hero text-3xl mb-3">😬</div>

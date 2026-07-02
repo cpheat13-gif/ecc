@@ -1,5 +1,6 @@
 import { useApp } from '../context/AppContext';
-import { EmojiHero, PersonMacroLine } from './ui';
+import { PersonMacroLine } from './ui';
+import FoodImage from './FoodImage';
 
 export default function LogView() {
   const { state, dispatch } = useApp();
@@ -44,7 +45,7 @@ export default function LogView() {
                 onClick={() => handleOpen(entry)}
                 className="flex items-start gap-4 cursor-pointer active:opacity-70 transition-opacity"
               >
-                <EmojiHero recipe={entry.recipe} mealType={entry.mealType} size="text-[44px]" className="mt-1" />
+                <FoodImage recipe={entry.recipe} mealType={entry.mealType} size="w-14 h-14" rounded="rounded-2xl" emojiSize="text-[44px]" className="mt-1 shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline justify-between gap-3">
                     <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-stone-400 capitalize">
