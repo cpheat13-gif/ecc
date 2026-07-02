@@ -240,7 +240,7 @@ export default function MealOptionsSheet() {
               </div>
               {currentSearch && (
                 <div className="mt-3 flex items-center gap-2">
-                  <span className="text-[12px] text-stone-800 bg-[#f8d9cb] px-3.5 py-1.5 rounded-full font-medium">
+                  <span className="text-[12px] text-stone-800 bg-[#dcecc8] px-3.5 py-1.5 rounded-full font-medium">
                     {currentSearch}
                   </span>
                   <button
