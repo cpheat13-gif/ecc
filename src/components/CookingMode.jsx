@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { InkPill } from './ui';
 
 function parseDuration(text) {
   let m;
@@ -38,10 +39,10 @@ function playDing() {
 }
 
 export default function CookingMode({ steps, recipeName, onClose }) {
-  const [stepIdx, setStepIdx]   = useState(0);
+  const [stepIdx, setStepIdx]     = useState(0);
   const [timerSecs, setTimerSecs] = useState(null);
-  const [running, setRunning]   = useState(false);
-  const [done, setDone]         = useState(false);
+  const [running, setRunning]     = useState(false);
+  const [done, setDone]           = useState(false);
   const intervalRef = useRef(null);
 
   const step       = steps[stepIdx];
@@ -95,52 +96,52 @@ export default function CookingMode({ steps, recipeName, onClose }) {
   const isLow = timerSecs !== null && timerSecs <= 30 && running;
 
   return (
-    <div className="fixed inset-0 z-[70] bg-stone-950 flex flex-col select-none">
+    <div className="fixed inset-0 z-[70] bg-[#fbf6f0] flex flex-col select-none">
       {/* Header */}
-      <div className="px-5 pt-12 pb-4 shrink-0 flex items-start justify-between">
+      <div className="px-6 pt-14 pb-4 shrink-0 flex items-start justify-between">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-stone-500">Cooking mode</p>
-          <p className="text-stone-400 text-sm font-medium mt-1 leading-snug max-w-[260px]">{recipeName}</p>
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-stone-400">Cooking</p>
+          <p className="font-display text-stone-700 text-base font-semibold mt-1 leading-snug max-w-[260px]">{recipeName}</p>
         </div>
         <button
           onClick={onClose}
-          className="w-9 h-9 flex items-center justify-center rounded-xl bg-stone-800 text-stone-400 active:bg-stone-700 transition-colors shrink-0"
+          className="w-9 h-9 flex items-center justify-center rounded-full bg-stone-900/[0.05] text-stone-500 active:bg-stone-900/10 transition-colors shrink-0"
         >
           ✕
         </button>
       </div>
 
-      {/* Progress dots */}
-      <div className="px-5 pb-5 shrink-0">
+      {/* Progress segments */}
+      <div className="px-6 pb-6 shrink-0">
         <div className="flex gap-1.5">
           {steps.map((_, i) => (
             <button
               key={i}
               onClick={() => setStepIdx(i)}
               className={`h-1 flex-1 rounded-full transition-all ${
-                i < stepIdx  ? 'bg-emerald-600' :
-                i === stepIdx ? 'bg-emerald-400' :
-                'bg-stone-800'
+                i < stepIdx  ? 'bg-stone-900' :
+                i === stepIdx ? 'bg-grad' :
+                'bg-stone-900/10'
               }`}
             />
           ))}
         </div>
-        <p className="text-stone-600 text-xs font-semibold mt-2.5">
+        <p className="text-stone-400 text-xs font-semibold mt-3">
           Step {stepIdx + 1} of {totalSteps}
         </p>
       </div>
 
       {/* Step text — scrollable */}
-      <div className="flex-1 overflow-y-auto px-5 pb-4">
-        <p className="text-white text-[22px] font-medium leading-[1.55]">{step}</p>
+      <div className="flex-1 overflow-y-auto px-6 pb-4">
+        <p className="font-display text-stone-900 text-[27px] font-semibold leading-[1.4]">{step}</p>
 
         {/* Timer button */}
         {duration && timerSecs === null && !done && (
           <button
             onClick={() => startTimer(duration)}
-            className="mt-8 flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 px-5 py-3.5 rounded-2xl font-semibold text-sm active:scale-95 transition-all"
+            className="mt-9 flex items-center gap-3 border border-stone-900/10 text-stone-700 px-6 py-3.5 rounded-full font-semibold text-sm active:scale-95 active:bg-stone-900/5 transition-all"
           >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="17" height="17" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="9" cy="10" r="7" />
               <path d="M9 7v3.5l2 2" />
               <path d="M6.5 1.5h5" />
@@ -152,18 +153,18 @@ export default function CookingMode({ steps, recipeName, onClose }) {
 
         {/* Active countdown */}
         {timerSecs !== null && !done && (
-          <div className="mt-8">
-            <div className={`text-[72px] font-bold tabular-nums leading-none tracking-tight transition-colors ${
-              isLow ? 'text-amber-400' : 'text-emerald-400'
+          <div className="mt-9">
+            <div className={`text-[76px] font-display font-bold tabular-nums leading-none tracking-tight ${
+              isLow ? 'text-red-500' : 'text-grad'
             }`}>
               {formatTime(timerSecs)}
             </div>
             {isLow && (
-              <p className="text-amber-500/80 text-xs font-semibold mt-2 uppercase tracking-widest">Almost done</p>
+              <p className="text-red-500/80 text-xs font-bold mt-3 uppercase tracking-[0.18em]">Almost done</p>
             )}
             <button
               onClick={() => { clearInterval(intervalRef.current); setRunning(false); setTimerSecs(null); }}
-              className="mt-4 text-xs text-stone-600 hover:text-stone-400 transition-colors font-medium"
+              className="mt-5 text-xs text-stone-400 active:text-stone-600 transition-colors font-medium"
             >
               Cancel timer
             </button>
@@ -172,48 +173,34 @@ export default function CookingMode({ steps, recipeName, onClose }) {
 
         {/* Timer done */}
         {done && (
-          <div className="mt-8 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 text-xl shrink-0">
-              ✓
-            </div>
-            <div>
-              <p className="text-emerald-400 font-bold text-lg">Time's up!</p>
-              <button
-                onClick={() => setDone(false)}
-                className="text-xs text-stone-600 hover:text-stone-400 transition-colors mt-0.5 font-medium"
-              >
-                Dismiss
-              </button>
-            </div>
+          <div className="mt-9">
+            <p className="font-display text-[40px] font-bold text-grad leading-tight">Time's up!</p>
+            <button
+              onClick={() => setDone(false)}
+              className="text-xs text-stone-400 active:text-stone-600 transition-colors mt-2 font-medium"
+            >
+              Dismiss
+            </button>
           </div>
         )}
       </div>
 
       {/* Navigation */}
-      <div className="px-5 pb-10 pt-4 shrink-0 flex gap-3">
+      <div className="px-6 pb-10 pt-4 shrink-0 flex gap-3">
         <button
           onClick={goPrev}
           disabled={stepIdx === 0}
-          className="w-14 h-14 rounded-2xl bg-stone-800 text-stone-300 text-xl flex items-center justify-center disabled:opacity-20 active:scale-95 transition-all"
+          className="w-14 h-14 rounded-full bg-stone-900/[0.05] text-stone-600 text-xl flex items-center justify-center disabled:opacity-20 active:scale-95 transition-all"
         >
           ←
         </button>
 
-        {isLast ? (
-          <button
-            onClick={onClose}
-            className="flex-1 h-14 rounded-2xl bg-emerald-600 text-white font-bold text-base flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg shadow-emerald-900/40"
-          >
-            All done!
-          </button>
-        ) : (
-          <button
-            onClick={goNext}
-            className="flex-1 h-14 rounded-2xl bg-emerald-600 text-white font-bold text-base flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg shadow-emerald-900/40"
-          >
-            Next step →
-          </button>
-        )}
+        <InkPill
+          onClick={isLast ? onClose : goNext}
+          className="flex-1 h-14 text-base shadow-[0_10px_28px_rgba(28,25,23,0.28)]"
+        >
+          {isLast ? 'All done!' : 'Next step →'}
+        </InkPill>
       </div>
     </div>
   );

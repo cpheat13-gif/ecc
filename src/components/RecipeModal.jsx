@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import CookingMode from './CookingMode';
+import { EmojiHero, Cal, PCF, GhostCircle, InkPill } from './ui';
 
 const CATEGORY_ICONS = {
   'Proteins':        '🥩',
@@ -12,32 +13,20 @@ const CATEGORY_ICONS = {
   'Other':           '📦',
 };
 
-function MacroGrid({ macros }) {
-  const metrics = [
-    { label: 'Calories', key: 'calories', unit: 'kcal' },
-    { label: 'Protein',  key: 'protein',  unit: 'g' },
-    { label: 'Carbs',    key: 'carbs',    unit: 'g' },
-    { label: 'Fat',      key: 'fat',      unit: 'g' },
-  ];
+const PERSON_DOT = { connor: 'bg-sky-500', isa: 'bg-violet-500' };
 
+function PersonMacros({ person, label, data }) {
+  if (!data) return null;
   return (
-    <div className="grid grid-cols-2 gap-2">
-      {[
-        { k: 'connor', label: 'Connor', bg: 'bg-sky-50',    text: 'text-sky-700',    muted: 'text-sky-500' },
-        { k: 'isa',    label: 'Isa',    bg: 'bg-violet-50', text: 'text-violet-700', muted: 'text-violet-500' },
-      ].map(({ k, label, bg, text, muted }) => macros?.[k] && (
-        <div key={k} className={`rounded-2xl p-3.5 ${bg}`}>
-          <div className={`text-[10px] font-bold uppercase tracking-widest mb-3 ${muted}`}>{label}</div>
-          {metrics.map(({ label: ml, key: mk, unit }) => (
-            <div key={mk} className="flex justify-between items-baseline mb-1.5 last:mb-0">
-              <span className={`text-xs ${muted}`}>{ml}</span>
-              <span className={`text-sm font-bold ${text} tabular-nums`}>
-                {macros[k][mk]}{unit !== 'kcal' && <span className={`text-[10px] font-normal ${muted}`}>{unit}</span>}
-              </span>
-            </div>
-          ))}
-        </div>
-      ))}
+    <div className="flex items-center justify-between py-2.5 border-b border-stone-900/[0.05] last:border-0">
+      <span className="flex items-center gap-2">
+        <span className={`w-1.5 h-1.5 rounded-full ${PERSON_DOT[person]}`} />
+        <span className="text-sm font-semibold text-stone-700">{label}</span>
+      </span>
+      <span className="flex items-baseline gap-3">
+        <Cal value={data.calories} size="text-lg" />
+        <PCF data={data} />
+      </span>
     </div>
   );
 }
@@ -109,78 +98,67 @@ export default function RecipeModal() {
       className="fixed inset-0 z-50 flex flex-col justify-end"
       onClick={(e) => e.target === e.currentTarget && dispatch({ type: 'CLOSE_RECIPE' })}
     >
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => dispatch({ type: 'CLOSE_RECIPE' })} />
+      <div className="absolute inset-0 bg-stone-900/30 backdrop-blur-sm" onClick={() => dispatch({ type: 'CLOSE_RECIPE' })} />
 
-      <div className="relative bg-white rounded-t-3xl max-h-[90vh] flex flex-col shadow-2xl">
+      <div className="relative bg-[#fdfaf6] rounded-t-[32px] max-h-[92vh] flex flex-col shadow-2xl">
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-2 shrink-0">
-          <div className="w-10 h-1 bg-stone-200 rounded-full" />
+          <div className="w-10 h-1 bg-stone-900/10 rounded-full" />
         </div>
 
         {/* Header */}
-        <div className="px-5 pb-4 shrink-0 border-b border-stone-100">
-          <div className="flex items-start justify-between gap-3">
+        <div className="px-6 pb-5 shrink-0">
+          <div className="flex items-start gap-4">
+            <EmojiHero recipe={recipe} mealType={mealType} size="text-[56px]" className="mt-1" />
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="text-[10px] font-semibold uppercase tracking-widest text-stone-400 capitalize">
-                  {isLibrary ? 'My Recipes' : `${day} · ${mealType}`}
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-400 capitalize">
+                  {isLibrary ? 'My recipes' : `${day} · ${mealType}`}
                 </span>
                 {recipe.highSodiumFlag && (
-                  <span className="text-[10px] bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded-full font-semibold">
-                    High sodium
-                  </span>
+                  <span className="text-[10px] text-amber-600 font-semibold">· High sodium</span>
                 )}
               </div>
-              <h2 className="text-xl font-bold text-stone-900 leading-tight">{recipe.name}</h2>
-              <div className="flex items-center gap-4 mt-1.5">
-                <span className="text-sm text-stone-400 font-medium">{recipe.cookTime}</span>
-                {!isLibrary && <span className="text-sm text-stone-400 font-medium">{portions}</span>}
-              </div>
+              <h2 className="font-display text-2xl font-bold text-stone-900 leading-tight mt-1">{recipe.name}</h2>
+              <p className="text-[13px] text-stone-400 font-medium mt-1">
+                {recipe.cookTime}
+                {!isLibrary && ` · ${portions}`}
+              </p>
             </div>
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex flex-col gap-2 shrink-0">
+              <GhostCircle onClick={() => dispatch({ type: 'CLOSE_RECIPE' })}>✕</GhostCircle>
               {!isLibrary && (
-                <button
+                <GhostCircle
                   onClick={handleStar}
-                  className={`w-9 h-9 flex items-center justify-center rounded-xl transition-colors text-lg ${
-                    isStarred ? 'bg-amber-50 text-amber-500' : 'bg-stone-100 text-stone-400'
-                  }`}
+                  className={isStarred ? '!bg-amber-100 !text-amber-500' : ''}
                   title={isStarred ? 'Remove from log' : 'Log this meal'}
                 >
                   {isStarred ? '★' : '☆'}
-                </button>
+                </GhostCircle>
               )}
-              <button
-                onClick={() => dispatch({ type: 'CLOSE_RECIPE' })}
-                className="w-9 h-9 flex items-center justify-center rounded-xl bg-stone-100 text-stone-500 hover:text-stone-800 transition-colors"
-              >
-                ✕
-              </button>
             </div>
           </div>
 
-          <div className="mt-3 flex gap-2">
+          <div className="mt-5 flex gap-2.5">
             {hasSteps && (
-              <button
-                onClick={() => setCooking(true)}
-                className="flex-1 py-2.5 rounded-xl bg-stone-900 text-white text-sm font-semibold transition-colors active:bg-stone-800 flex items-center justify-center gap-2"
-              >
-                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="3,1 14,7.5 3,14" fill="currentColor" stroke="none" />
+              <InkPill onClick={() => setCooking(true)} className="flex-1 py-3.5 text-sm">
+                <svg width="13" height="13" viewBox="0 0 15 15" fill="currentColor">
+                  <polygon points="3,1 14,7.5 3,14" />
                 </svg>
                 Start Cooking
-              </button>
+              </InkPill>
             )}
             {isLibrary ? (
               <button
                 onClick={handleDelete}
-                className={`py-2.5 rounded-xl border border-red-200 bg-red-50/50 text-red-500 text-sm font-semibold transition-colors active:bg-red-100 ${hasSteps ? 'px-4' : 'flex-1'}`}
+                className={`py-3.5 rounded-full border border-red-200 text-red-500 text-sm font-semibold active:bg-red-50 transition-colors ${hasSteps ? 'px-6' : 'flex-1'}`}
               >
                 Delete
               </button>
             ) : (
               <button
                 onClick={handleSwap}
-                className={`py-2.5 rounded-xl border border-emerald-200 bg-emerald-50/50 text-emerald-700 text-sm font-semibold transition-colors active:bg-emerald-100 ${hasSteps ? 'px-4' : 'flex-1'}`}
+                className={`py-3.5 rounded-full border border-stone-900/10 text-stone-600 text-sm font-semibold active:bg-stone-900/5 transition-colors ${hasSteps ? 'px-6' : 'flex-1'}`}
               >
                 ↺ Swap
               </button>
@@ -189,16 +167,16 @@ export default function RecipeModal() {
         </div>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto px-5 pb-10 space-y-6 pt-5">
+        <div className="flex-1 overflow-y-auto px-6 pb-12 space-y-8">
           {/* TikTok source link */}
           {isLibrary && recipe.sourceTikTokUrl && (
             <a
               href={recipe.sourceTikTokUrl}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-2 text-xs text-stone-500 font-medium bg-stone-50 rounded-xl px-3 py-2.5 border border-stone-100 active:bg-stone-100 transition-colors"
+              className="flex items-center gap-2 text-xs text-stone-500 font-medium rounded-full px-4 py-2.5 border border-stone-900/[0.07] active:bg-stone-900/5 transition-colors"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="shrink-0 text-stone-400">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="shrink-0 text-stone-400">
                 <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/>
               </svg>
               <span className="truncate">{recipe.sourceTikTokUrl}</span>
@@ -207,25 +185,26 @@ export default function RecipeModal() {
 
           {/* Macros */}
           <section>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Macros per serving</p>
-            <MacroGrid macros={recipe.macros} />
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-400 mb-1">Per serving</p>
+            <PersonMacros person="connor" label="Connor" data={recipe.macros?.connor} />
+            <PersonMacros person="isa" label="Isa" data={recipe.macros?.isa} />
           </section>
 
           {/* Ingredients */}
           <section>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Ingredients</p>
-            <div className="space-y-5">
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-400 mb-4">Ingredients</p>
+            <div className="space-y-6">
               {Object.entries(grouped).map(([cat, items]) => (
                 <div key={cat}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm">{CATEGORY_ICONS[cat] || '📦'}</span>
-                    <span className="text-xs font-bold text-stone-500 uppercase tracking-wide">{cat}</span>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-base emoji-hero">{CATEGORY_ICONS[cat] || '📦'}</span>
+                    <span className="font-display text-sm font-semibold text-stone-700">{cat}</span>
                   </div>
-                  <div className="space-y-2 pl-1">
+                  <div>
                     {items.map((ing, i) => (
-                      <div key={i} className="flex justify-between text-sm">
-                        <span className="text-stone-800 font-medium">{ing.item}</span>
-                        <span className="text-stone-400 ml-4 shrink-0">
+                      <div key={i} className="flex justify-between items-baseline py-2 border-b border-stone-900/[0.05] last:border-0">
+                        <span className="text-[15px] text-stone-800 font-medium">{ing.item}</span>
+                        <span className="text-[13px] text-stone-400 ml-4 shrink-0 tabular-nums">
                           {ing.quantity} {ing.unit}
                         </span>
                       </div>
@@ -239,14 +218,14 @@ export default function RecipeModal() {
           {/* Method */}
           {hasSteps && (
             <section>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4">Method</p>
-              <ol className="space-y-4">
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-400 mb-4">Method</p>
+              <ol className="space-y-5">
                 {recipe.steps.map((step, i) => (
                   <li key={i} className="flex gap-4">
-                    <span className="shrink-0 text-sm font-bold text-stone-300 tabular-nums w-4 mt-0.5">
+                    <span className="shrink-0 font-display text-lg font-bold text-grad tabular-nums w-6">
                       {i + 1}
                     </span>
-                    <p className="text-sm text-stone-700 leading-relaxed">{step}</p>
+                    <p className="text-[15px] text-stone-700 leading-relaxed pt-0.5">{step}</p>
                   </li>
                 ))}
               </ol>
@@ -256,11 +235,11 @@ export default function RecipeModal() {
           {/* Whole Foods tips */}
           {recipe.wholeFoodsTips?.length > 0 && (
             <section>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">Shopping Tips</p>
-              <div className="space-y-2">
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-400 mb-3">Shopping tips</p>
+              <div className="space-y-2.5">
                 {recipe.wholeFoodsTips.map((tip, i) => (
-                  <div key={i} className="flex gap-3 text-sm text-stone-600">
-                    <span className="shrink-0 text-emerald-500 mt-0.5">•</span>
+                  <div key={i} className="flex gap-3 text-sm text-stone-600 leading-relaxed">
+                    <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-grad mt-[7px]" />
                     <span>{tip}</span>
                   </div>
                 ))}
