@@ -1,11 +1,5 @@
 import { useApp } from '../context/AppContext';
-
-const MEAL_ICONS = {
-  breakfast: '☀️',
-  lunch:     '🥗',
-  dinner:    '🍽️',
-  snack:     '🍎',
-};
+import { EmojiHero, PersonMacroLine } from './ui';
 
 export default function LogView() {
   const { state, dispatch } = useApp();
@@ -21,84 +15,60 @@ export default function LogView() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 pb-28">
-      <div className="px-4 pt-12 pb-4">
-        <h1 className="text-2xl font-bold text-stone-900 tracking-tight">Meal Log</h1>
-        <p className="text-sm text-stone-400 font-medium mt-0.5">Meals you've starred as eaten</p>
+    <div className="min-h-screen pb-36">
+      <div className="px-5 pt-14 pb-2">
+        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-stone-400">Meals you've eaten</p>
+        <h1 className="font-display text-[44px] font-bold text-stone-900 leading-[1.05] tracking-tight mt-1">
+          Log
+        </h1>
       </div>
 
       {entries.length === 0 ? (
-        <div className="flex flex-col items-center justify-center px-8 pt-20 text-center">
-          <div className="w-14 h-14 rounded-2xl bg-stone-100 flex items-center justify-center mx-auto mb-4 text-2xl">
-            ☆
-          </div>
-          <p className="text-stone-500 font-semibold text-sm">No meals logged yet</p>
-          <p className="text-stone-400 text-xs mt-1">
+        <div className="flex flex-col items-center justify-center px-8 pt-24 text-center">
+          <div className="emoji-hero text-5xl mb-5">⭐</div>
+          <p className="text-stone-600 font-semibold text-sm">No meals logged yet</p>
+          <p className="text-stone-400 text-xs mt-1 max-w-[240px] leading-relaxed">
             Open a recipe and tap ★ after you eat it to log it here
           </p>
         </div>
       ) : (
-        <div className="px-4 space-y-3">
+        <div className="px-5 pt-6 space-y-8">
           {entries.map((entry) => {
             const key     = `${entry.day}-${entry.mealType}`;
             const date    = new Date(entry.starredAt);
             const dateStr = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-            const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 
             return (
-              <button
+              <div
                 key={key}
                 onClick={() => handleOpen(entry)}
-                className="w-full text-left bg-white shadow-[0_1px_10px_rgba(0,0,0,0.06)] border border-stone-100/80 rounded-2xl p-4 active:scale-[0.98] transition-transform"
+                className="flex items-start gap-4 cursor-pointer active:opacity-70 transition-opacity"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <span className="text-sm">{MEAL_ICONS[entry.mealType] || '🍽'}</span>
-                      <span className="text-[10px] font-semibold uppercase tracking-widest text-stone-400 capitalize">
-                        {entry.day} · {entry.mealType}
-                      </span>
-                    </div>
-                    <p className="text-stone-900 font-semibold leading-snug truncate">
-                      {entry.recipe.name}
+                <EmojiHero recipe={entry.recipe} mealType={entry.mealType} size="text-[44px]" className="mt-1" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-stone-400 capitalize">
+                      {entry.day} · {entry.mealType}
                     </p>
-                    <p className="text-xs text-stone-400 font-medium mt-0.5">{entry.recipe.cookTime}</p>
+                    <p className="text-[11px] text-amber-600 font-semibold shrink-0">{dateStr}</p>
                   </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-xs text-amber-600 font-semibold">{dateStr}</p>
-                    <p className="text-xs text-stone-400 mt-0.5">{timeStr}</p>
-                  </div>
+                  <h3 className="font-display text-lg font-semibold text-stone-900 leading-snug mt-0.5">
+                    {entry.recipe.name}
+                  </h3>
+                  {entry.recipe.macros && (
+                    <div className="space-y-1.5 mt-2.5">
+                      <PersonMacroLine person="connor" label="Connor" data={entry.recipe.macros.connor} />
+                      <PersonMacroLine person="isa" label="Isa" data={entry.recipe.macros.isa} />
+                    </div>
+                  )}
                 </div>
-
-                {entry.recipe.macros && (
-                  <div className="flex gap-2 mt-3 pt-3 border-t border-stone-50">
-                    {entry.recipe.macros.connor && (
-                      <div className="flex-1 bg-sky-50 rounded-xl px-3 py-2">
-                        <div className="text-[10px] font-bold uppercase tracking-widest text-sky-500 mb-0.5">Connor</div>
-                        <div className="text-xs text-sky-700 font-bold tabular-nums">
-                          {entry.recipe.macros.connor.calories} kcal
-                        </div>
-                        <div className="text-[10px] text-sky-500">P {entry.recipe.macros.connor.protein}g</div>
-                      </div>
-                    )}
-                    {entry.recipe.macros.isa && (
-                      <div className="flex-1 bg-violet-50 rounded-xl px-3 py-2">
-                        <div className="text-[10px] font-bold uppercase tracking-widest text-violet-500 mb-0.5">Isa</div>
-                        <div className="text-xs text-violet-700 font-bold tabular-nums">
-                          {entry.recipe.macros.isa.calories} kcal
-                        </div>
-                        <div className="text-[10px] text-violet-500">P {entry.recipe.macros.isa.protein}g</div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </button>
+              </div>
             );
           })}
 
           <button
             onClick={() => dispatch({ type: 'CLEAR_LOG' })}
-            className="w-full py-3 text-sm text-stone-400 hover:text-rose-500 transition-colors font-medium"
+            className="w-full py-3 text-sm text-stone-400 active:text-red-500 transition-colors font-medium"
           >
             Clear log
           </button>
