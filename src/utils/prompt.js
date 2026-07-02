@@ -24,6 +24,7 @@ Macro targets for this meal:
 Return this exact JSON structure:
 {
   "name": "",
+  "emoji": "",
   "cookTime": "",
   "ingredients": [{"item": "", "quantity": "", "unit": "", "category": ""}],
   "steps": [],
@@ -34,6 +35,8 @@ Return this exact JSON structure:
   "wholeFoodsTips": [],
   "highSodiumFlag": false
 }
+
+emoji: the one food emoji that best represents the finished dish.
 
 For wholeFoodsTips: include 2-3 short, practical tips for shopping this recipe at Whole Foods — which section to find key ingredients, what to look for when buying (e.g. freshness, cut, form), or any helpful store-specific notes. One sentence each.`;
 }
@@ -79,12 +82,14 @@ ${macroLines.join('\n')}
 Rules:
 - Whole natural foods only, available at Whole Foods
 - Moderate sodium (Isa has a kidney health consideration)
+- emoji: the one food emoji that best represents each dish
 - ${varietyRule}
 
 Return a JSON array of exactly 5 objects, no markdown:
 [
   {
     "name": "",
+    "emoji": "",
     "cookTime": "",
     "description": "",
     "macros": {
