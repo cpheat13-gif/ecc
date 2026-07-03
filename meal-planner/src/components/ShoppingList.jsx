@@ -58,7 +58,7 @@ function CategorySection({ category, items, checked, onToggle }) {
                 }`}
               >
                 {checked[item.key] && (
-                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="#fbf6f0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="#f7faf1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M1 4L3.5 6.5L9 1" />
                   </svg>
                 )}

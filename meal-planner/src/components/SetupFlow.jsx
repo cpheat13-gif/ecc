@@ -31,7 +31,7 @@ function PillOption({ selected, children, ...props }) {
       {...props}
       className={`py-3 rounded-full text-sm font-semibold transition-all ${
         selected
-          ? 'bg-stone-900 text-[#fbf6f0]'
+          ? 'bg-stone-900 text-[#f7faf1]'
           : 'bg-white/70 text-stone-600 border border-stone-900/[0.07]'
       }`}
     >

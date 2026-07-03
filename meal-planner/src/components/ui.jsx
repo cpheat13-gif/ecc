@@ -64,7 +64,7 @@ export function InkPill({ children, className = '', ...props }) {
   return (
     <button
       {...props}
-      className={`bg-stone-900 text-[#fbf6f0] font-semibold rounded-full active:scale-95 transition-all disabled:opacity-40 flex items-center justify-center gap-2 ${className}`}
+      className={`bg-stone-900 text-[#f7faf1] font-semibold rounded-full active:scale-95 transition-all disabled:opacity-40 flex items-center justify-center gap-2 ${className}`}
     >
       {children}
     </button>

@@ -113,7 +113,7 @@ export default function RecipeImportSheet({ onClose }) {
     <div className="fixed inset-0 z-[60] flex flex-col justify-end">
       <div className="absolute inset-0 bg-stone-900/30 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative bg-[#fdfaf6] rounded-t-[32px] max-h-[92vh] flex flex-col shadow-2xl">
+      <div className="relative bg-[#f8faf1] rounded-t-[32px] max-h-[92vh] flex flex-col shadow-2xl">
         <div className="flex justify-center pt-3 pb-1 shrink-0">
           <div className="w-10 h-1 bg-stone-900/10 rounded-full" />
         </div>
@@ -128,7 +128,7 @@ export default function RecipeImportSheet({ onClose }) {
             <button
               onClick={() => switchTab('tiktok')}
               className={`px-4 py-1.5 text-xs font-semibold rounded-full transition-all ${
-                tab === 'tiktok' ? 'bg-stone-900 text-[#fbf6f0]' : 'text-stone-400 border border-stone-900/[0.08]'
+                tab === 'tiktok' ? 'bg-stone-900 text-[#f7faf1]' : 'text-stone-400 border border-stone-900/[0.08]'
               }`}
             >
               TikTok URL
@@ -136,7 +136,7 @@ export default function RecipeImportSheet({ onClose }) {
             <button
               onClick={() => switchTab('paste')}
               className={`px-4 py-1.5 text-xs font-semibold rounded-full transition-all ${
-                tab === 'paste' ? 'bg-stone-900 text-[#fbf6f0]' : 'text-stone-400 border border-stone-900/[0.08]'
+                tab === 'paste' ? 'bg-stone-900 text-[#f7faf1]' : 'text-stone-400 border border-stone-900/[0.08]'
               }`}
             >
               Paste recipe

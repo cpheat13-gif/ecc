@@ -59,7 +59,7 @@ export default function Dashboard() {
                 onClick={() => dispatch({ type: 'SET_ACTIVE_DAY', day })}
                 className={`w-9 h-9 rounded-full text-[13px] font-display font-semibold transition-all flex items-center justify-center ${
                   active
-                    ? 'bg-stone-900 text-[#fbf6f0]'
+                    ? 'bg-stone-900 text-[#f7faf1]'
                     : planned
                     ? 'text-stone-700'
                     : 'text-stone-300'

@@ -96,7 +96,7 @@ export default function CookingMode({ steps, recipeName, onClose }) {
   const isLow = timerSecs !== null && timerSecs <= 30 && running;
 
   return (
-    <div className="fixed inset-0 z-[70] bg-[#fbf6f0] flex flex-col select-none">
+    <div className="fixed inset-0 z-[70] bg-[#f7faf1] flex flex-col select-none">
       {/* Header */}
       <div className="px-6 pt-14 pb-4 shrink-0 flex items-start justify-between">
         <div>

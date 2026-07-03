@@ -82,7 +82,7 @@ export default function RecipesView() {
         </div>
         <button
           onClick={() => setImporting(true)}
-          className="mb-2 w-11 h-11 rounded-full bg-stone-900 text-[#fbf6f0] flex items-center justify-center active:scale-95 transition-all shadow-[0_8px_20px_rgba(28,25,23,0.25)]"
+          className="mb-2 w-11 h-11 rounded-full bg-stone-900 text-[#f7faf1] flex items-center justify-center active:scale-95 transition-all shadow-[0_8px_20px_rgba(28,25,23,0.25)]"
           title="Add recipe"
         >
           <svg width="15" height="15" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round">
@@ -102,7 +102,7 @@ export default function RecipesView() {
             </p>
             <button
               onClick={() => setImporting(true)}
-              className="mt-7 px-7 py-3.5 bg-stone-900 text-[#fbf6f0] text-sm font-semibold rounded-full active:scale-95 transition-all"
+              className="mt-7 px-7 py-3.5 bg-stone-900 text-[#f7faf1] text-sm font-semibold rounded-full active:scale-95 transition-all"
             >
               Add your first recipe
             </button>

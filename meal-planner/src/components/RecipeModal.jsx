@@ -106,7 +106,7 @@ export default function RecipeModal() {
     >
       <div className="absolute inset-0 bg-stone-900/30 backdrop-blur-sm" onClick={() => dispatch({ type: 'CLOSE_RECIPE' })} />
 
-      <div className="relative bg-[#fdfaf6] rounded-t-[32px] max-h-[92vh] flex flex-col shadow-2xl">
+      <div className="relative bg-[#f8faf1] rounded-t-[32px] max-h-[92vh] flex flex-col shadow-2xl">
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-2 shrink-0">
           <div className="w-10 h-1 bg-stone-900/10 rounded-full" />

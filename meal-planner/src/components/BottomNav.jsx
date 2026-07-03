@@ -60,7 +60,7 @@ export default function BottomNav() {
                 key={id}
                 onClick={() => dispatch({ type: 'SET_VIEW', view: id })}
                 className={`flex-1 flex flex-col items-center gap-0.5 py-2 rounded-full transition-all ${
-                  active ? 'bg-stone-900 text-[#fbf6f0]' : 'text-stone-400'
+                  active ? 'bg-stone-900 text-[#f7faf1]' : 'text-stone-400'
                 }`}
               >
                 <Icon />
