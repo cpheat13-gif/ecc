@@ -182,7 +182,7 @@ export default function MealOptionsSheet() {
     <div className="fixed inset-0 z-[60] flex flex-col justify-end">
       <div className="absolute inset-0 bg-stone-900/30 backdrop-blur-sm" onClick={close} />
 
-      <div className="relative bg-[#fdfaf6] rounded-t-[32px] max-h-[92vh] flex flex-col shadow-2xl">
+      <div className="relative bg-[#f8faf1] rounded-t-[32px] max-h-[92vh] flex flex-col shadow-2xl">
         {/* Handle */}
         <div className="flex justify-center pt-3 pb-1 shrink-0">
           <div className="w-10 h-1 bg-stone-900/10 rounded-full" />
@@ -208,7 +208,7 @@ export default function MealOptionsSheet() {
                 onClick={() => setTab(id)}
                 className={`px-4 py-1.5 text-xs font-semibold rounded-full transition-all ${
                   tab === id
-                    ? 'bg-stone-900 text-[#fbf6f0]'
+                    ? 'bg-stone-900 text-[#f7faf1]'
                     : 'text-stone-400 border border-stone-900/[0.08]'
                 }`}
               >
@@ -231,7 +231,7 @@ export default function MealOptionsSheet() {
                 <button
                   onClick={handleSearch}
                   disabled={loading || !searchInput.trim()}
-                  className="w-9 h-9 rounded-full bg-stone-900 text-[#fbf6f0] flex items-center justify-center disabled:opacity-25 active:scale-95 transition-all shrink-0"
+                  className="w-9 h-9 rounded-full bg-stone-900 text-[#f7faf1] flex items-center justify-center disabled:opacity-25 active:scale-95 transition-all shrink-0"
                 >
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M7 12V2M3 6l4-4 4 4" />
