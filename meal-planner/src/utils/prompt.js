@@ -15,6 +15,7 @@ Dietary rules:
 - Isa's protein must not exceed 80g/day total.
 - All ingredients must be available at Whole Foods. Keep cost-efficient — bulk proteins, seasonal veg, simple staples.
 - Use practical US store units for all ingredient quantities (lbs, oz, cups, tbsp, tsp, whole count, fl oz, etc.). Do not use grams or milliliters.
+- Favor traditional, familiar, mainstream home-cooked dishes over experimental or fusion combinations. Think classic weeknight dinners — the kind found in a well-loved family cookbook — not novelty pairings, unusual ingredients, or invented flavor mashups.
 - ${portionNote}
 
 Macro targets for this meal:
@@ -42,11 +43,10 @@ For wholeFoodsTips: include 2-3 short, practical tips for shopping this recipe a
 }
 
 const CUISINE_POOLS = [
-  ['Mediterranean', 'Japanese', 'Mexican', 'Indian', 'American'],
-  ['Thai', 'Italian', 'Korean', 'Greek', 'Middle Eastern'],
-  ['Vietnamese', 'French', 'Ethiopian', 'Peruvian', 'Spanish'],
-  ['Moroccan', 'Caribbean', 'Chinese', 'Turkish', 'Cajun'],
-  ['Lebanese', 'Brazilian', 'Indonesian', 'Scandinavian', 'West African'],
+  ['American', 'Italian', 'Mexican', 'Mediterranean', 'Chinese-American'],
+  ['American', 'Greek', 'Japanese', 'Italian', 'Tex-Mex'],
+  ['American', 'Mediterranean', 'Thai', 'Italian', 'Mexican'],
+  ['American', 'Italian-American', 'Indian (mild)', 'Mexican', 'Mediterranean'],
 ];
 
 function randomCuisines() {
@@ -71,8 +71,8 @@ export function buildOptionsPrompt({ mealType, participants, targets, searchTerm
   }
 
   const varietyRule = searchTerm
-    ? `- All 5 options should be inspired by the requested vibe/style, each using a distinctly different dish, protein, and cooking method`
-    : `- Draw inspiration from these cuisines, one per option: ${cuisines.join(', ')}\n- Each option must use a distinctly different protein, cooking method, and flavor profile`;
+    ? `- All 5 options should be inspired by the requested vibe/style, each using a different protein so they're not repetitive — but keep every dish a traditional, recognizable preparation of that style, not an invented fusion`
+    : `- Draw loose inspiration from these familiar cuisines, one per option: ${cuisines.join(', ')}\n- Each option should use a different protein so the week feels varied, but every dish should be a classic, well-known preparation — the kind of meal you'd recognize from a family cookbook or a solid neighborhood restaurant, not an experimental combination`;
 
   return `Return JSON only. No explanation. Generate 5 varied ${mealType} recipe options for a meal planner.${vibe}${exclude}
 
@@ -83,6 +83,7 @@ Rules:
 - Whole natural foods only, available at Whole Foods
 - Moderate sodium (Isa has a kidney health consideration)
 - emoji: the one food emoji that best represents each dish
+- Favor traditional, familiar, mainstream dishes. Avoid novelty pairings, unusual ingredients, or invented flavor mashups.
 - ${varietyRule}
 
 Return a JSON array of exactly 5 objects, no markdown:
