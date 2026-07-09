@@ -6,6 +6,7 @@ import ShoppingList from './components/ShoppingList';
 import LogView from './components/LogView';
 import SettingsView from './components/SettingsView';
 import RecipesView from './components/RecipesView';
+import ChatView from './components/ChatView';
 import TimelineView from './components/TimelineView';
 import RecipeModal from './components/RecipeModal';
 import MealOptionsSheet from './components/MealOptionsSheet';
@@ -48,6 +49,7 @@ function AppShell() {
         {state.view === 'dashboard' && <Dashboard />}
         {state.view === 'timeline'  && <TimelineView />}
         {state.view === 'shopping'  && <ShoppingList />}
+        {state.view === 'chat'      && <ChatView />}
         {state.view === 'recipes'   && <RecipesView />}
         {state.view === 'log'       && <LogView />}
         {state.view === 'settings'  && <SettingsView />}

@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { getMealTargets } from '../utils/macros';
 import { buildOptionsPrompt, buildMealPrompt, generateMeal } from '../utils/prompt';
+import { onHandIngredients } from '../utils/chat';
 import { EmojiHero, PCF, Cal, GhostCircle, InkPill } from './ui';
+import ChatThread from './ChatThread';
 
 const THINKING_PHRASES = [
   'Plating ideas…',
@@ -104,6 +106,9 @@ export default function MealOptionsSheet() {
   const [currentSearch, setCurrentSearch] = useState('');
   const [selectingName, setSelectingName] = useState(null);
   const [seenNames, setSeenNames]         = useState([]);
+  const [chatMessages, setChatMessages]   = useState([]);
+
+  const onHand = onHandIngredients(state.mealPlan, state.shoppingChecked);
 
   const favorites = Object.values(starredMeals || {}).sort((a, b) => {
     if (a.mealType === mealType && b.mealType !== mealType) return -1;
@@ -170,10 +175,16 @@ export default function MealOptionsSheet() {
     dispatch({ type: 'CLOSE_OPTIONS' });
   };
 
+  const handleUseChatRecipe = (recipe) => {
+    dispatch({ type: 'SET_MEAL', day, mealType, recipe: { ...recipe, mealType } });
+    dispatch({ type: 'CLOSE_OPTIONS' });
+  };
+
   const close = () => dispatch({ type: 'CLOSE_OPTIONS' });
 
   const TAB_LABELS = [
     { id: 'suggestions', label: 'AI' },
+    { id: 'chat',        label: 'Chat' },
     { id: 'myrecipes',   label: `Recipes${(customRecipes || []).length ? ` ${customRecipes.length}` : ''}` },
     { id: 'favorites',   label: `Starred${favorites.length ? ` ${favorites.length}` : ''}` },
   ];
@@ -256,6 +267,29 @@ export default function MealOptionsSheet() {
         </div>
 
         {/* Content */}
+        {tab === 'chat' ? (
+          <div className="flex-1 min-h-0">
+            <ChatThread
+              messages={chatMessages}
+              onMessagesChange={setChatMessages}
+              context={{ onHand, targets, dayLabel: day, mealType }}
+              primaryLabel="Use this meal"
+              onPrimary={handleUseChatRecipe}
+              placeholder={`Ask for a ${mealType} idea…`}
+              emptyState={
+                <div className="flex flex-col items-center justify-center pt-12 text-center px-6">
+                  <div className="emoji-hero text-4xl mb-4">💬</div>
+                  <p className="text-stone-700 font-display font-semibold text-base mb-1">
+                    What sounds good for {mealType}?
+                  </p>
+                  <p className="text-stone-400 text-sm max-w-[240px] leading-relaxed">
+                    Tell me a craving, an ingredient to use up, or what to swap — I'll land on a recipe for this slot.
+                  </p>
+                </div>
+              }
+            />
+          </div>
+        ) : (
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-7 pb-10">
           {tab === 'suggestions' ? (
             <>
@@ -324,6 +358,7 @@ export default function MealOptionsSheet() {
             ))
           )}
         </div>
+        )}
       </div>
     </div>
   );

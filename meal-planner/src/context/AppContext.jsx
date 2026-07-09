@@ -52,6 +52,7 @@ const INITIAL_STATE = {
   starredMeals: {},
   settings: DEFAULT_SETTINGS,
   customRecipes: [],
+  chatMessages: [],
 };
 
 function reducer(state, action) {
@@ -179,6 +180,9 @@ function reducer(state, action) {
 
     case 'RESTORE_WEEK_CONFIG':
       return { ...state, weekConfig: action.config };
+
+    case 'SET_CHAT_MESSAGES':
+      return { ...state, chatMessages: action.messages };
 
     case 'RESET':
       return { ...INITIAL_STATE };

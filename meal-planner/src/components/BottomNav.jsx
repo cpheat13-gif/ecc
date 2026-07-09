@@ -39,9 +39,18 @@ function BookIcon() {
   );
 }
 
+function ChatIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 4.5h16a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5H9l-4.5 4v-4H3a1.5 1.5 0 0 1-1.5-1.5V6A1.5 1.5 0 0 1 3 4.5z" />
+    </svg>
+  );
+}
+
 const TABS = [
   { id: 'dashboard', label: 'Week',     Icon: CalendarIcon },
   { id: 'shopping',  label: 'Shopping', Icon: CartIcon },
+  { id: 'chat',      label: 'Chat',     Icon: ChatIcon },
   { id: 'recipes',   label: 'Recipes',  Icon: BookIcon },
   { id: 'log',       label: 'Log',      Icon: StarIcon },
 ];
