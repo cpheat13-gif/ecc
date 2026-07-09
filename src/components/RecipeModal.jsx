@@ -47,6 +47,8 @@ export default function RecipeModal() {
   const { state, dispatch } = useApp();
   const { selectedMeal } = state;
   const [cooking, setCooking] = useState(false);
+  const [cookingMinimized, setCookingMinimized] = useState(false);
+  const [cookingStep, setCookingStep] = useState(0);
 
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') dispatch({ type: 'CLOSE_RECIPE' }); };
@@ -55,7 +57,7 @@ export default function RecipeModal() {
   }, [dispatch]);
 
   // Reset cooking mode when recipe changes
-  useEffect(() => { setCooking(false); }, [selectedMeal]);
+  useEffect(() => { setCooking(false); setCookingMinimized(false); }, [selectedMeal]);
 
   useEffect(() => {
     if (selectedMeal?.recipe) ensureRecipeImage(selectedMeal.recipe, dispatch);
@@ -89,22 +91,15 @@ export default function RecipeModal() {
   const portions = mealType === 'dinner' ? '4 portions (2 dinner + 2 lunch)' : '2 portions';
   const hasSteps = recipe.steps?.length > 0;
 
-  if (cooking && hasSteps) {
-    return (
-      <CookingMode
-        steps={recipe.steps}
-        recipeName={recipe.name}
-        onClose={() => setCooking(false)}
-      />
-    );
-  }
+  const closeCooking = () => { setCooking(false); setCookingMinimized(false); };
 
   return (
+    <>
     <div
-      className="fixed inset-0 z-50 flex flex-col justify-end"
-      onClick={(e) => e.target === e.currentTarget && dispatch({ type: 'CLOSE_RECIPE' })}
+      className={`fixed inset-0 z-50 flex flex-col justify-end ${cooking ? 'select-none' : ''}`}
+      onClick={(e) => e.target === e.currentTarget && !cooking && dispatch({ type: 'CLOSE_RECIPE' })}
     >
-      <div className="absolute inset-0 bg-stone-900/30 backdrop-blur-sm" onClick={() => dispatch({ type: 'CLOSE_RECIPE' })} />
+      <div className="absolute inset-0 bg-stone-900/30 backdrop-blur-sm" onClick={() => !cooking && dispatch({ type: 'CLOSE_RECIPE' })} />
 
       <div className="relative bg-[#f8faf1] rounded-t-[32px] max-h-[92vh] flex flex-col shadow-2xl">
         {/* Drag handle */}
@@ -147,11 +142,14 @@ export default function RecipeModal() {
 
           <div className="mt-5 flex gap-2.5">
             {hasSteps && (
-              <InkPill onClick={() => setCooking(true)} className="flex-1 py-3.5 text-sm">
+              <InkPill
+                onClick={() => cooking ? setCookingMinimized(false) : setCooking(true)}
+                className="flex-1 py-3.5 text-sm"
+              >
                 <svg width="13" height="13" viewBox="0 0 15 15" fill="currentColor">
                   <polygon points="3,1 14,7.5 3,14" />
                 </svg>
-                Start Cooking
+                {cooking ? `Resume Cooking · Step ${cookingStep + 1} of ${recipe.steps.length}` : 'Start Cooking'}
               </InkPill>
             )}
             {isLibrary ? (
@@ -262,5 +260,17 @@ export default function RecipeModal() {
         </div>
       </div>
     </div>
+
+    {cooking && hasSteps && (
+      <CookingMode
+        steps={recipe.steps}
+        recipeName={recipe.name}
+        onClose={closeCooking}
+        minimized={cookingMinimized}
+        onMinimizedChange={setCookingMinimized}
+        onStepChange={setCookingStep}
+      />
+    )}
+    </>
   );
 }

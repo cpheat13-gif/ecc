@@ -38,17 +38,28 @@ function playDing() {
   } catch {}
 }
 
-export default function CookingMode({ steps, recipeName, onClose }) {
+// CookingMode is a full-screen sheet layered above the recipe modal.
+// Drag the top handle down to peek at the recipe (ingredients, photo)
+// underneath; past a threshold it snaps fully closed so the recipe is
+// completely visible, with the "Resume Cooking" button in the modal
+// bringing it back. Dragging less than the threshold springs back open.
+export default function CookingMode({ steps, recipeName, onClose, minimized = false, onMinimizedChange, onStepChange }) {
   const [stepIdx, setStepIdx]     = useState(0);
   const [timerSecs, setTimerSecs] = useState(null);
   const [running, setRunning]     = useState(false);
   const [done, setDone]           = useState(false);
   const intervalRef = useRef(null);
 
+  const [dragY, setDragY]   = useState(minimized ? window.innerHeight : 0);
+  const [dragging, setDragging] = useState(false);
+  const dragStart = useRef({ y: 0, base: 0 });
+
   const step       = steps[stepIdx];
   const duration   = parseDuration(step);
   const totalSteps = steps.length;
   const isLast     = stepIdx === totalSteps - 1;
+
+  useEffect(() => { onStepChange?.(stepIdx); }, [stepIdx]);
 
   // Keep screen awake while cooking
   useEffect(() => {
@@ -89,16 +100,61 @@ export default function CookingMode({ steps, recipeName, onClose }) {
     return () => clearInterval(intervalRef.current);
   }, [running]);
 
+  // Follow externally-controlled minimized state (e.g. "Resume Cooking" tap)
+  useEffect(() => {
+    setDragY(minimized ? window.innerHeight : 0);
+  }, [minimized]);
+
   const goNext = () => { if (!isLast) setStepIdx(i => i + 1); };
   const goPrev = () => { if (stepIdx > 0) setStepIdx(i => i - 1); };
 
   const timerMinutes = duration ? Math.round(duration / 60) : null;
   const isLow = timerSecs !== null && timerSecs <= 30 && running;
 
+  const handlePointerDown = (e) => {
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    setDragging(true);
+    dragStart.current = { y: e.clientY, base: dragY };
+  };
+  const handlePointerMove = (e) => {
+    if (!dragging) return;
+    const delta = e.clientY - dragStart.current.y;
+    const max = window.innerHeight;
+    setDragY(Math.min(max, Math.max(0, dragStart.current.base + delta)));
+  };
+  const finishDrag = () => {
+    if (!dragging) return;
+    setDragging(false);
+    const max = window.innerHeight;
+    const shouldClose = dragY > max * 0.32;
+    setDragY(shouldClose ? max : 0);
+    onMinimizedChange?.(shouldClose);
+  };
+
   return (
-    <div className="fixed inset-0 z-[70] bg-[#f7faf1] flex flex-col select-none">
+    <div
+      className="fixed inset-0 z-[70] bg-[#f7faf1] flex flex-col select-none"
+      style={{
+        transform: `translateY(${dragY}px)`,
+        transition: dragging ? 'none' : 'transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)',
+        borderRadius: dragY > 4 ? '32px 32px 0 0' : '0px',
+        boxShadow: dragY > 4 ? '0 -24px 60px rgba(40, 30, 10, 0.28)' : 'none',
+      }}
+    >
+      {/* Drag handle — swipe down to peek at the recipe, swipe up (or tap Resume) to return */}
+      <div
+        data-cooking-handle="true"
+        className="pt-3 pb-2 shrink-0 flex justify-center cursor-grab active:cursor-grabbing touch-none"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={finishDrag}
+        onPointerCancel={finishDrag}
+      >
+        <div className="w-10 h-1.5 bg-stone-900/15 rounded-full" />
+      </div>
+
       {/* Header */}
-      <div className="px-6 pt-14 pb-4 shrink-0 flex items-start justify-between">
+      <div className="px-6 pb-4 shrink-0 flex items-start justify-between">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-stone-400">Cooking</p>
           <p className="font-display text-stone-700 text-base font-semibold mt-1 leading-snug max-w-[260px]">{recipeName}</p>
