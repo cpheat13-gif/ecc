@@ -4,6 +4,7 @@ import CookingMode from './CookingMode';
 import { Cal, PCF, GhostCircle, InkPill } from './ui';
 import FoodImage from './FoodImage';
 import { ensureRecipeImage } from '../utils/images';
+import { shareRecipePdf } from '../utils/exportPdf';
 
 const CATEGORY_ICONS = {
   'Proteins':        '🥩',
@@ -49,6 +50,7 @@ export default function RecipeModal() {
   const [cooking, setCooking] = useState(false);
   const [cookingMinimized, setCookingMinimized] = useState(false);
   const [cookingStep, setCookingStep] = useState(0);
+  const [sharing, setSharing] = useState(false);
 
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') dispatch({ type: 'CLOSE_RECIPE' }); };
@@ -85,6 +87,18 @@ export default function RecipeModal() {
   const handleDelete = () => {
     dispatch({ type: 'DELETE_CUSTOM_RECIPE', id: recipe.id });
     dispatch({ type: 'CLOSE_RECIPE' });
+  };
+
+  const handleShare = async () => {
+    if (sharing) return;
+    setSharing(true);
+    try {
+      await shareRecipePdf(recipe);
+    } catch (err) {
+      alert(`Could not create the PDF: ${err.message}`);
+    } finally {
+      setSharing(false);
+    }
   };
 
   const grouped  = groupIngredients(recipe.ingredients || []);
@@ -128,6 +142,16 @@ export default function RecipeModal() {
             </div>
             <div className="flex flex-col gap-2 shrink-0">
               <GhostCircle onClick={() => dispatch({ type: 'CLOSE_RECIPE' })}>✕</GhostCircle>
+              <GhostCircle onClick={handleShare} disabled={sharing} title="Share as PDF">
+                {sharing ? (
+                  <span className="w-3.5 h-3.5 rounded-full border-2 border-stone-400/30 border-t-stone-500 animate-spin" />
+                ) : (
+                  <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10 13V3M6.5 6.5L10 3l3.5 3.5" />
+                    <path d="M4 10v5.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5V10" />
+                  </svg>
+                )}
+              </GhostCircle>
               {!isLibrary && (
                 <GhostCircle
                   onClick={handleStar}
