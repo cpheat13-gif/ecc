@@ -1,5 +1,17 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { InkPill } from './ui';
+
+const CATEGORY_ICONS = {
+  'Proteins':        '🥩',
+  'Produce':         '🥦',
+  'Dairy':           '🥚',
+  'Pantry':          '🫙',
+  'Canned & Jarred': '🥫',
+  'Spices':          '🧂',
+  'Other':           '📦',
+};
+
+const DEFAULT_STAGE_MIN = 3; // weight for steps without a parseable time so their bar still reads
 
 function parseDuration(text) {
   let m;
@@ -38,12 +50,24 @@ function playDing() {
   } catch {}
 }
 
+function buildStages(steps) {
+  return steps.map((text, i) => {
+    const secs = parseDuration(text);
+    return { index: i, text, secs, minutes: secs ? Math.max(1, Math.round(secs / 60)) : DEFAULT_STAGE_MIN, timed: !!secs };
+  });
+}
+
 // CookingMode is a full-screen sheet layered above the recipe modal.
 // Drag the top handle down to peek at the recipe (ingredients, photo)
 // underneath; past a threshold it snaps fully closed so the recipe is
 // completely visible, with the "Resume Cooking" button in the modal
 // bringing it back. Dragging less than the threshold springs back open.
-export default function CookingMode({ steps, recipeName, onClose, minimized = false, onMinimizedChange, onStepChange }) {
+//
+// Two views share the same step/timer state: "Steps" is the original
+// one-step-at-a-time flow; "Timeline" lays every stage out as a
+// proportional-duration bar chart with an ingredient checklist, so the
+// whole cook is visible at a glance.
+export default function CookingMode({ steps, recipeName, ingredients = [], onClose, minimized = false, onMinimizedChange, onStepChange }) {
   const [stepIdx, setStepIdx]     = useState(0);
   const [timerSecs, setTimerSecs] = useState(null);
   const [running, setRunning]     = useState(false);
@@ -53,6 +77,13 @@ export default function CookingMode({ steps, recipeName, onClose, minimized = fa
   const [dragY, setDragY]   = useState(minimized ? window.innerHeight : 0);
   const [dragging, setDragging] = useState(false);
   const dragStart = useRef({ y: 0, base: 0 });
+
+  const [view, setView] = useState('steps'); // 'steps' | 'timeline'
+  const [checkedIngredients, setCheckedIngredients] = useState({});
+  const [expandedStage, setExpandedStage] = useState(null);
+
+  const stages = useMemo(() => buildStages(steps), [steps]);
+  const maxMinutes = useMemo(() => Math.max(...stages.map(s => s.minutes), 1), [stages]);
 
   const step       = steps[stepIdx];
   const duration   = parseDuration(step);
@@ -107,6 +138,13 @@ export default function CookingMode({ steps, recipeName, onClose, minimized = fa
 
   const goNext = () => { if (!isLast) setStepIdx(i => i + 1); };
   const goPrev = () => { if (stepIdx > 0) setStepIdx(i => i - 1); };
+
+  const jumpToStage = (i) => {
+    setStepIdx(i);
+    setExpandedStage(cur => (cur === i ? null : i));
+  };
+
+  const toggleIngredient = (key) => setCheckedIngredients(prev => ({ ...prev, [key]: !prev[key] }));
 
   const timerMinutes = duration ? Math.round(duration / 60) : null;
   const isLow = timerSecs !== null && timerSecs <= 30 && running;
@@ -167,79 +205,201 @@ export default function CookingMode({ steps, recipeName, onClose, minimized = fa
         </button>
       </div>
 
-      {/* Progress segments */}
-      <div className="px-6 pb-6 shrink-0">
-        <div className="flex gap-1.5">
-          {steps.map((_, i) => (
+      {/* Steps / Timeline toggle */}
+      <div className="px-6 pb-4 shrink-0">
+        <div className="flex gap-1 p-1 bg-stone-900/[0.05] rounded-full w-fit">
+          {[{ id: 'steps', label: 'Steps' }, { id: 'timeline', label: 'Timeline' }].map(({ id, label }) => (
             <button
-              key={i}
-              onClick={() => setStepIdx(i)}
-              className={`h-1 flex-1 rounded-full transition-all ${
-                i < stepIdx  ? 'bg-stone-900' :
-                i === stepIdx ? 'bg-grad' :
-                'bg-stone-900/10'
+              key={id}
+              onClick={() => setView(id)}
+              className={`px-4 py-1.5 text-xs font-semibold rounded-full transition-all ${
+                view === id ? 'bg-stone-900 text-[#f7faf1]' : 'text-stone-500'
               }`}
-            />
+            >
+              {label}
+            </button>
           ))}
         </div>
-        <p className="text-stone-400 text-xs font-semibold mt-3">
-          Step {stepIdx + 1} of {totalSteps}
-        </p>
       </div>
 
-      {/* Step text — scrollable */}
-      <div className="flex-1 overflow-y-auto px-6 pb-4">
-        <p className="font-display text-stone-900 text-[27px] font-semibold leading-[1.4]">{step}</p>
-
-        {/* Timer button */}
-        {duration && timerSecs === null && !done && (
-          <button
-            onClick={() => startTimer(duration)}
-            className="mt-9 flex items-center gap-3 border border-stone-900/10 text-stone-700 px-6 py-3.5 rounded-full font-semibold text-sm active:scale-95 active:bg-stone-900/5 transition-all"
-          >
-            <svg width="17" height="17" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="9" cy="10" r="7" />
-              <path d="M9 7v3.5l2 2" />
-              <path d="M6.5 1.5h5" />
-              <path d="M9 1.5v2" />
-            </svg>
-            Start {timerMinutes} min timer
-          </button>
-        )}
-
-        {/* Active countdown */}
-        {timerSecs !== null && !done && (
-          <div className="mt-9">
-            <div className={`text-[76px] font-display font-bold tabular-nums leading-none tracking-tight ${
-              isLow ? 'text-red-500' : 'text-grad'
-            }`}>
-              {formatTime(timerSecs)}
+      {view === 'steps' ? (
+        <>
+          {/* Progress segments */}
+          <div className="px-6 pb-6 shrink-0">
+            <div className="flex gap-1.5">
+              {steps.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setStepIdx(i)}
+                  className={`h-1 flex-1 rounded-full transition-all ${
+                    i < stepIdx  ? 'bg-stone-900' :
+                    i === stepIdx ? 'bg-grad' :
+                    'bg-stone-900/10'
+                  }`}
+                />
+              ))}
             </div>
-            {isLow && (
-              <p className="text-red-500/80 text-xs font-bold mt-3 uppercase tracking-[0.18em]">Almost done</p>
-            )}
-            <button
-              onClick={() => { clearInterval(intervalRef.current); setRunning(false); setTimerSecs(null); }}
-              className="mt-5 text-xs text-stone-400 active:text-stone-600 transition-colors font-medium"
-            >
-              Cancel timer
-            </button>
+            <p className="text-stone-400 text-xs font-semibold mt-3">
+              Step {stepIdx + 1} of {totalSteps}
+            </p>
           </div>
-        )}
 
-        {/* Timer done */}
-        {done && (
-          <div className="mt-9">
-            <p className="font-display text-[40px] font-bold text-grad leading-tight">Time's up!</p>
-            <button
-              onClick={() => setDone(false)}
-              className="text-xs text-stone-400 active:text-stone-600 transition-colors mt-2 font-medium"
-            >
-              Dismiss
-            </button>
+          {/* Step text — scrollable */}
+          <div className="flex-1 overflow-y-auto px-6 pb-4">
+            <p className="font-display text-stone-900 text-[27px] font-semibold leading-[1.4]">{step}</p>
+
+            {/* Timer button */}
+            {duration && timerSecs === null && !done && (
+              <button
+                onClick={() => startTimer(duration)}
+                className="mt-9 flex items-center gap-3 border border-stone-900/10 text-stone-700 px-6 py-3.5 rounded-full font-semibold text-sm active:scale-95 active:bg-stone-900/5 transition-all"
+              >
+                <svg width="17" height="17" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="9" cy="10" r="7" />
+                  <path d="M9 7v3.5l2 2" />
+                  <path d="M6.5 1.5h5" />
+                  <path d="M9 1.5v2" />
+                </svg>
+                Start {timerMinutes} min timer
+              </button>
+            )}
+
+            {/* Active countdown */}
+            {timerSecs !== null && !done && (
+              <div className="mt-9">
+                <div className={`text-[76px] font-display font-bold tabular-nums leading-none tracking-tight ${
+                  isLow ? 'text-red-500' : 'text-grad'
+                }`}>
+                  {formatTime(timerSecs)}
+                </div>
+                {isLow && (
+                  <p className="text-red-500/80 text-xs font-bold mt-3 uppercase tracking-[0.18em]">Almost done</p>
+                )}
+                <button
+                  onClick={() => { clearInterval(intervalRef.current); setRunning(false); setTimerSecs(null); }}
+                  className="mt-5 text-xs text-stone-400 active:text-stone-600 transition-colors font-medium"
+                >
+                  Cancel timer
+                </button>
+              </div>
+            )}
+
+            {/* Timer done */}
+            {done && (
+              <div className="mt-9">
+                <p className="font-display text-[40px] font-bold text-grad leading-tight">Time's up!</p>
+                <button
+                  onClick={() => setDone(false)}
+                  className="text-xs text-stone-400 active:text-stone-600 transition-colors mt-2 font-medium"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      ) : (
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          {/* Ingredient checklist strip */}
+          {ingredients.length > 0 && (
+            <div className="mb-6">
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-400 mb-2.5">Ingredients</p>
+              <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+                {ingredients.map((ing, i) => {
+                  const key = `${ing.item}-${i}`;
+                  const checked = !!checkedIngredients[key];
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => toggleIngredient(key)}
+                      className={`shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                        checked
+                          ? 'bg-stone-900/[0.06] text-stone-400 line-through'
+                          : 'bg-white border border-stone-900/[0.07] text-stone-700'
+                      }`}
+                    >
+                      <span>{CATEGORY_ICONS[ing.category] || '📦'}</span>
+                      {ing.item}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Stage timeline */}
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-400 mb-3">
+            Stages · {totalSteps} total
+          </p>
+          <div className="space-y-2.5">
+            {stages.map((stage) => {
+              const isCurrent   = stage.index === stepIdx;
+              const isPast      = stage.index < stepIdx;
+              const isExpanded  = expandedStage === stage.index;
+              const widthPct    = Math.max(24, Math.round((stage.minutes / maxMinutes) * 100));
+              const showLiveTimer = isCurrent && timerSecs !== null && !done;
+
+              return (
+                <div key={stage.index}>
+                  <button
+                    onClick={() => jumpToStage(stage.index)}
+                    className="w-full flex items-center gap-3 text-left"
+                  >
+                    <span
+                      className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold transition-all ${
+                        isCurrent ? 'bg-stone-900 text-[#f7faf1]' :
+                        isPast    ? 'bg-stone-900/80 text-[#f7faf1]' :
+                        'bg-stone-900/[0.06] text-stone-400'
+                      }`}
+                    >
+                      {stage.index + 1}
+                    </span>
+
+                    <span className="flex-1 min-w-0">
+                      <span className="relative block h-9 rounded-full bg-stone-900/[0.05] overflow-hidden">
+                        <span
+                          className={`absolute inset-y-0 left-0 rounded-full transition-all duration-500 ${
+                            isCurrent ? 'bg-grad' : isPast ? 'bg-stone-900/70' : 'bg-stone-900/15'
+                          }`}
+                          style={{ width: `${widthPct}%` }}
+                        />
+                        <span className={`absolute inset-0 flex items-center justify-between px-3.5 text-[12px] font-semibold ${
+                          isCurrent ? 'text-white' : isPast ? 'text-white/90' : 'text-stone-500'
+                        }`}>
+                          <span className="truncate pr-2">{stage.text.split(/[.!]/)[0].slice(0, 42)}</span>
+                          <span className="shrink-0 tabular-nums">
+                            {showLiveTimer
+                              ? formatTime(timerSecs)
+                              : stage.timed ? `${stage.minutes} min` : '—'}
+                          </span>
+                        </span>
+                      </span>
+                    </span>
+                  </button>
+
+                  {isExpanded && (
+                    <div className="ml-10 mt-2 mb-1 pl-3 border-l-2 border-stone-900/[0.08]">
+                      <p className="text-[14px] text-stone-700 leading-relaxed">{stage.text}</p>
+                      {isCurrent && stage.timed && timerSecs === null && !done && (
+                        <button
+                          onClick={() => startTimer(stage.secs)}
+                          className="mt-2.5 flex items-center gap-2 text-xs font-semibold text-stone-700 active:text-stone-900"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="9" cy="10" r="7" />
+                            <path d="M9 7v3.5l2 2" />
+                          </svg>
+                          Start {stage.minutes} min timer
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Navigation */}
       <div className="px-6 pb-10 pt-4 shrink-0 flex gap-3">
