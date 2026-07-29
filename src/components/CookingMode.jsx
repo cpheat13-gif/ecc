@@ -83,7 +83,15 @@ export default function CookingMode({ steps, recipeName, ingredients = [], onClo
   const [expandedStage, setExpandedStage] = useState(null);
 
   const stages = useMemo(() => buildStages(steps), [steps]);
-  const maxMinutes = useMemo(() => Math.max(...stages.map(s => s.minutes), 1), [stages]);
+  const totalMinutes = useMemo(() => stages.reduce((sum, s) => sum + s.minutes, 0) || 1, [stages]);
+  const stagesWithOffset = useMemo(() => {
+    let acc = 0;
+    return stages.map(s => {
+      const offsetPct = (acc / totalMinutes) * 100;
+      acc += s.minutes;
+      return { ...s, offsetPct, widthPct: (s.minutes / totalMinutes) * 100 };
+    });
+  }, [stages, totalMinutes]);
 
   const step       = steps[stepIdx];
   const duration   = parseDuration(step);
@@ -327,58 +335,72 @@ export default function CookingMode({ steps, recipeName, ingredients = [], onClo
             </div>
           )}
 
-          {/* Stage timeline */}
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-400 mb-3">
-            Stages · {totalSteps} total
-          </p>
-          <div className="space-y-2.5">
-            {stages.map((stage) => {
+          {/* Stage timeline — a Gantt-style bar chart. Each stage's bar sits
+              at its cumulative start time along a shared axis and is sized
+              to its duration, so the whole cook reads as one chart. */}
+          <div className="flex items-baseline justify-between mb-3">
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-400">
+              Stages · {totalSteps} total
+            </p>
+            <p className="text-[11px] font-semibold text-stone-300 tabular-nums">
+              {totalMinutes} min total
+            </p>
+          </div>
+
+          <div className="relative space-y-4">
+            {/* Shared time-axis gridlines behind the bars */}
+            <div className="pointer-events-none absolute inset-0 flex" style={{ left: 34 }}>
+              {[25, 50, 75].map(pct => (
+                <div key={pct} className="absolute inset-y-0 w-px bg-stone-900/[0.06]" style={{ left: `${pct}%` }} />
+              ))}
+            </div>
+
+            {stagesWithOffset.map((stage) => {
               const isCurrent   = stage.index === stepIdx;
               const isPast      = stage.index < stepIdx;
               const isExpanded  = expandedStage === stage.index;
-              const widthPct    = Math.max(24, Math.round((stage.minutes / maxMinutes) * 100));
               const showLiveTimer = isCurrent && timerSecs !== null && !done;
 
               return (
                 <div key={stage.index}>
-                  <button
-                    onClick={() => jumpToStage(stage.index)}
-                    className="w-full flex items-center gap-3 text-left"
-                  >
-                    <span
-                      className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold transition-all ${
-                        isCurrent ? 'bg-stone-900 text-[#f7faf1]' :
-                        isPast    ? 'bg-stone-900/80 text-[#f7faf1]' :
-                        'bg-stone-900/[0.06] text-stone-400'
-                      }`}
-                    >
-                      {stage.index + 1}
-                    </span>
-
-                    <span className="flex-1 min-w-0">
-                      <span className="relative block h-9 rounded-full bg-stone-900/[0.05] overflow-hidden">
-                        <span
-                          className={`absolute inset-y-0 left-0 rounded-full transition-all duration-500 ${
+                  <button onClick={() => jumpToStage(stage.index)} className="w-full text-left">
+                    <div className="flex items-baseline justify-between gap-2 mb-1.5 pl-[34px]">
+                      <span className={`text-[13px] font-semibold truncate ${
+                        isCurrent ? 'text-stone-900' : isPast ? 'text-stone-500' : 'text-stone-400'
+                      }`}>
+                        {stage.text.split(/[.!]/)[0].slice(0, 46)}
+                      </span>
+                      <span className={`text-[12px] font-bold tabular-nums shrink-0 ${
+                        isCurrent ? 'text-grad' : 'text-stone-400'
+                      }`}>
+                        {showLiveTimer
+                          ? formatTime(timerSecs)
+                          : stage.timed ? `${stage.minutes}m` : '—'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <span
+                        className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${
+                          isCurrent ? 'bg-stone-900 text-[#f7faf1] ring-2 ring-offset-2 ring-offset-[#f7faf1] ring-stone-900/20' :
+                          isPast    ? 'bg-stone-900/75 text-[#f7faf1]' :
+                          'bg-stone-900/[0.07] text-stone-400'
+                        }`}
+                      >
+                        {stage.index + 1}
+                      </span>
+                      <div className="relative flex-1 h-6 rounded-md bg-stone-900/[0.05] overflow-hidden">
+                        <div
+                          className={`absolute inset-y-0 rounded-md transition-all duration-500 ${
                             isCurrent ? 'bg-grad' : isPast ? 'bg-stone-900/70' : 'bg-stone-900/15'
                           }`}
-                          style={{ width: `${widthPct}%` }}
+                          style={{ left: `${stage.offsetPct}%`, width: `${stage.widthPct}%`, minWidth: 10 }}
                         />
-                        <span className={`absolute inset-0 flex items-center justify-between px-3.5 text-[12px] font-semibold ${
-                          isCurrent ? 'text-white' : isPast ? 'text-white/90' : 'text-stone-500'
-                        }`}>
-                          <span className="truncate pr-2">{stage.text.split(/[.!]/)[0].slice(0, 42)}</span>
-                          <span className="shrink-0 tabular-nums">
-                            {showLiveTimer
-                              ? formatTime(timerSecs)
-                              : stage.timed ? `${stage.minutes} min` : '—'}
-                          </span>
-                        </span>
-                      </span>
-                    </span>
+                      </div>
+                    </div>
                   </button>
 
                   {isExpanded && (
-                    <div className="ml-10 mt-2 mb-1 pl-3 border-l-2 border-stone-900/[0.08]">
+                    <div className="ml-[34px] mt-2.5 pl-3 border-l-2 border-stone-900/[0.08]">
                       <p className="text-[14px] text-stone-700 leading-relaxed">{stage.text}</p>
                       {isCurrent && stage.timed && timerSecs === null && !done && (
                         <button
