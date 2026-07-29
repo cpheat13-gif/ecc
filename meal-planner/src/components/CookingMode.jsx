@@ -280,13 +280,13 @@ export default function CookingMode({ steps, recipeName, ingredients = [], onClo
           </div>
         </>
       ) : (
-        <div className="flex-1 min-h-0 px-6 pb-4">
+        <div className="flex-1 min-h-0">
           <RecipeGrid
             stages={stages}
             ingredients={ingredients}
             stepIdx={stepIdx}
             onJumpToStage={setStepIdx}
-            currentStepText={step}
+            onStartCooking={() => { setStepIdx(0); setView('steps'); }}
           />
         </div>
       )}
