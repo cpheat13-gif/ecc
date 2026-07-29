@@ -289,6 +289,7 @@ export default function RecipeModal() {
       <CookingMode
         steps={recipe.steps}
         recipeName={recipe.name}
+        ingredients={recipe.ingredients || []}
         onClose={closeCooking}
         minimized={cookingMinimized}
         onMinimizedChange={setCookingMinimized}
