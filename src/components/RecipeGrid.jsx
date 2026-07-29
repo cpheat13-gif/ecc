@@ -12,9 +12,11 @@ const C = {
   hair:   '#dedcd5',
   ink:    '#15150f',
   muted:  '#8b8981',
-  sage:   '#dde3d5',
-  sageBd: '#c6ceb8',
-  sageOn: '#cdd6c1',
+  sage:     '#dde3d5',
+  sageBd:   '#c6ceb8',
+  sageOn:   '#cdd6c1',
+  fill:     '#a9bd8e',
+  doneFill: '#c2a15e',
   wait:   '#eceae4',
   accent: '#b07128',
 };
@@ -204,7 +206,7 @@ function detectVessel(steps) {
 // the last ingredient that enters during it, and the pale block to an
 // ingredient's left marks the stages it sits out — together they read as a
 // staircase down the sheet.
-export default function RecipeGrid({ stages, ingredients, stepIdx, onJumpToStage, onStartCooking }) {
+export default function RecipeGrid({ stages, ingredients, stepIdx, onStageTap, onStartCooking, timer }) {
   const [serves, setServes] = useState(BASE_SERVES);
   const [metric, setMetric] = useState(false);
 
@@ -408,8 +410,8 @@ export default function RecipeGrid({ stages, ingredients, stepIdx, onJumpToStage
               return (
                 <button
                   key={`stage-${k}`}
-                  onClick={() => onJumpToStage(s.index)}
-                  className="px-2 py-2 text-center"
+                  onClick={() => onStageTap(s.index)}
+                  className="relative overflow-hidden px-2 py-2 text-center"
                   style={{
                     gridColumn: k + 2,
                     gridRow:    `${band.top + 1} / ${band.bottom + 2}`,
@@ -417,17 +419,45 @@ export default function RecipeGrid({ stages, ingredients, stepIdx, onJumpToStage
                     border:     `1px solid ${current ? C.ink : C.sageBd}`,
                   }}
                 >
-                  <p className="text-[11px] font-bold leading-tight" style={{ color: C.ink }}>
-                    {band.label}
-                  </p>
-                  <p
-                    className="text-[9px] leading-snug mt-1"
-                    style={{ color: C.muted, fontFamily: MONO }}
-                  >
-                    {s.timed
-                      ? `${s.minutes} min${hint ? ` · ${hint}` : ''}`
-                      : stageActions(s.text, band.label.split(' ')[0]) || '—'}
-                  </p>
+                  {/* Elapsed fill — the block drains left to right as it counts */}
+                  {current && timer && (
+                    <div
+                      className="absolute inset-y-0 left-0 pointer-events-none"
+                      style={{
+                        width:      `${Math.min(100, Math.max(0, timer.progress * 100))}%`,
+                        background: timer.done ? C.doneFill : C.fill,
+                        transition: 'width 1s linear',
+                      }}
+                    />
+                  )}
+
+                  <div className="relative">
+                    <p className="text-[11px] font-bold leading-tight" style={{ color: C.ink }}>
+                      {band.label}
+                    </p>
+                    <p
+                      className="text-[9px] leading-snug mt-1"
+                      style={{
+                        color: current && timer ? C.ink : C.muted,
+                        fontFamily: MONO,
+                        fontWeight: current && timer ? 700 : 400,
+                      }}
+                    >
+                      {current && timer
+                        ? timer.label
+                        : s.timed
+                          ? `${s.minutes} min${hint ? ` · ${hint}` : ''}`
+                          : stageActions(s.text, band.label.split(' ')[0]) || '—'}
+                    </p>
+                    {current && timer && !timer.done && (
+                      <p
+                        className="text-[8px] mt-0.5 tracking-[0.1em]"
+                        style={{ color: C.muted, fontFamily: MONO }}
+                      >
+                        {timer.running ? 'TAP TO PAUSE' : 'PAUSED'}
+                      </p>
+                    )}
+                  </div>
                 </button>
               );
             })}
