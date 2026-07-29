@@ -1,17 +1,8 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { InkPill } from './ui';
+import RecipeGrid from './RecipeGrid';
 
-const CATEGORY_ICONS = {
-  'Proteins':        '🥩',
-  'Produce':         '🥦',
-  'Dairy':           '🥚',
-  'Pantry':          '🫙',
-  'Canned & Jarred': '🥫',
-  'Spices':          '🧂',
-  'Other':           '📦',
-};
-
-const DEFAULT_STAGE_MIN = 3; // weight for steps without a parseable time so their bar still reads
+const DEFAULT_STAGE_MIN = 3; // weight for steps without a parseable time so short stages stay visible
 
 function parseDuration(text) {
   let m;
@@ -79,19 +70,8 @@ export default function CookingMode({ steps, recipeName, ingredients = [], onClo
   const dragStart = useRef({ y: 0, base: 0 });
 
   const [view, setView] = useState('steps'); // 'steps' | 'timeline'
-  const [checkedIngredients, setCheckedIngredients] = useState({});
-  const [expandedStage, setExpandedStage] = useState(null);
 
   const stages = useMemo(() => buildStages(steps), [steps]);
-  const totalMinutes = useMemo(() => stages.reduce((sum, s) => sum + s.minutes, 0) || 1, [stages]);
-  const stagesWithOffset = useMemo(() => {
-    let acc = 0;
-    return stages.map(s => {
-      const offsetPct = (acc / totalMinutes) * 100;
-      acc += s.minutes;
-      return { ...s, offsetPct, widthPct: (s.minutes / totalMinutes) * 100 };
-    });
-  }, [stages, totalMinutes]);
 
   const step       = steps[stepIdx];
   const duration   = parseDuration(step);
@@ -146,13 +126,6 @@ export default function CookingMode({ steps, recipeName, ingredients = [], onClo
 
   const goNext = () => { if (!isLast) setStepIdx(i => i + 1); };
   const goPrev = () => { if (stepIdx > 0) setStepIdx(i => i - 1); };
-
-  const jumpToStage = (i) => {
-    setStepIdx(i);
-    setExpandedStage(cur => (cur === i ? null : i));
-  };
-
-  const toggleIngredient = (key) => setCheckedIngredients(prev => ({ ...prev, [key]: !prev[key] }));
 
   const timerMinutes = duration ? Math.round(duration / 60) : null;
   const isLow = timerSecs !== null && timerSecs <= 30 && running;
@@ -307,119 +280,14 @@ export default function CookingMode({ steps, recipeName, ingredients = [], onClo
           </div>
         </>
       ) : (
-        <div className="flex-1 overflow-y-auto px-6 pb-6">
-          {/* Ingredient checklist strip */}
-          {ingredients.length > 0 && (
-            <div className="mb-6">
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-400 mb-2.5">Ingredients</p>
-              <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
-                {ingredients.map((ing, i) => {
-                  const key = `${ing.item}-${i}`;
-                  const checked = !!checkedIngredients[key];
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => toggleIngredient(key)}
-                      className={`shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
-                        checked
-                          ? 'bg-stone-900/[0.06] text-stone-400 line-through'
-                          : 'bg-white border border-stone-900/[0.07] text-stone-700'
-                      }`}
-                    >
-                      <span>{CATEGORY_ICONS[ing.category] || '📦'}</span>
-                      {ing.item}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Stage timeline — a Gantt-style bar chart. Each stage's bar sits
-              at its cumulative start time along a shared axis and is sized
-              to its duration, so the whole cook reads as one chart. */}
-          <div className="flex items-baseline justify-between mb-3">
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-stone-400">
-              Stages · {totalSteps} total
-            </p>
-            <p className="text-[11px] font-semibold text-stone-300 tabular-nums">
-              {totalMinutes} min total
-            </p>
-          </div>
-
-          <div className="relative space-y-4">
-            {/* Shared time-axis gridlines behind the bars */}
-            <div className="pointer-events-none absolute inset-0 flex" style={{ left: 34 }}>
-              {[25, 50, 75].map(pct => (
-                <div key={pct} className="absolute inset-y-0 w-px bg-stone-900/[0.06]" style={{ left: `${pct}%` }} />
-              ))}
-            </div>
-
-            {stagesWithOffset.map((stage) => {
-              const isCurrent   = stage.index === stepIdx;
-              const isPast      = stage.index < stepIdx;
-              const isExpanded  = expandedStage === stage.index;
-              const showLiveTimer = isCurrent && timerSecs !== null && !done;
-
-              return (
-                <div key={stage.index}>
-                  <button onClick={() => jumpToStage(stage.index)} className="w-full text-left">
-                    <div className="flex items-baseline justify-between gap-2 mb-1.5 pl-[34px]">
-                      <span className={`text-[13px] font-semibold truncate ${
-                        isCurrent ? 'text-stone-900' : isPast ? 'text-stone-500' : 'text-stone-400'
-                      }`}>
-                        {stage.text.split(/[.!]/)[0].slice(0, 46)}
-                      </span>
-                      <span className={`text-[12px] font-bold tabular-nums shrink-0 ${
-                        isCurrent ? 'text-grad' : 'text-stone-400'
-                      }`}>
-                        {showLiveTimer
-                          ? formatTime(timerSecs)
-                          : stage.timed ? `${stage.minutes}m` : '—'}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2.5">
-                      <span
-                        className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${
-                          isCurrent ? 'bg-stone-900 text-[#f7faf1] ring-2 ring-offset-2 ring-offset-[#f7faf1] ring-stone-900/20' :
-                          isPast    ? 'bg-stone-900/75 text-[#f7faf1]' :
-                          'bg-stone-900/[0.07] text-stone-400'
-                        }`}
-                      >
-                        {stage.index + 1}
-                      </span>
-                      <div className="relative flex-1 h-6 rounded-md bg-stone-900/[0.05] overflow-hidden">
-                        <div
-                          className={`absolute inset-y-0 rounded-md transition-all duration-500 ${
-                            isCurrent ? 'bg-grad' : isPast ? 'bg-stone-900/70' : 'bg-stone-900/15'
-                          }`}
-                          style={{ left: `${stage.offsetPct}%`, width: `${stage.widthPct}%`, minWidth: 10 }}
-                        />
-                      </div>
-                    </div>
-                  </button>
-
-                  {isExpanded && (
-                    <div className="ml-[34px] mt-2.5 pl-3 border-l-2 border-stone-900/[0.08]">
-                      <p className="text-[14px] text-stone-700 leading-relaxed">{stage.text}</p>
-                      {isCurrent && stage.timed && timerSecs === null && !done && (
-                        <button
-                          onClick={() => startTimer(stage.secs)}
-                          className="mt-2.5 flex items-center gap-2 text-xs font-semibold text-stone-700 active:text-stone-900"
-                        >
-                          <svg width="14" height="14" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="9" cy="10" r="7" />
-                            <path d="M9 7v3.5l2 2" />
-                          </svg>
-                          Start {stage.minutes} min timer
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+        <div className="flex-1 min-h-0 px-6 pb-4">
+          <RecipeGrid
+            stages={stages}
+            ingredients={ingredients}
+            stepIdx={stepIdx}
+            onJumpToStage={setStepIdx}
+            currentStepText={step}
+          />
         </div>
       )}
 
