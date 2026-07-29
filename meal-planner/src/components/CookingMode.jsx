@@ -87,12 +87,17 @@ export default function CookingMode({ steps, recipeName, ingredients = [], onClo
     return () => { wakeLock?.release(); };
   }, []);
 
-  // Reset timer when step changes
+  // Reset timer when step changes. A stage tapped on the Timeline sheet asks
+  // to start counting straight away, so honour that here rather than letting
+  // this reset stomp it.
+  const pendingStart = useRef(null);
   useEffect(() => {
     clearInterval(intervalRef.current);
-    setTimerSecs(null);
-    setRunning(false);
     setDone(false);
+    const secs = pendingStart.current;
+    pendingStart.current = null;
+    setTimerSecs(secs ?? null);
+    setRunning(!!secs);
   }, [stepIdx]);
 
   const startTimer = useCallback((secs) => {
@@ -126,6 +131,27 @@ export default function CookingMode({ steps, recipeName, ingredients = [], onClo
 
   const goNext = () => { if (!isLast) setStepIdx(i => i + 1); };
   const goPrev = () => { if (stepIdx > 0) setStepIdx(i => i - 1); };
+
+  const stopTimer = useCallback(() => {
+    clearInterval(intervalRef.current);
+    setRunning(false);
+  }, []);
+
+  // Tapping a stage on the Timeline sheet moves there and starts its clock.
+  // Tapping the stage you're already on toggles that clock.
+  const handleStageTap = (i) => {
+    const secs = stages[i]?.secs;
+    if (i !== stepIdx) {
+      pendingStart.current = secs || null;
+      setStepIdx(i);
+      return;
+    }
+    if (!secs) return;                        // untimed stage — nothing to run
+    if (running)          stopTimer();
+    else if (done)        startTimer(secs);   // re-run a finished stage
+    else if (timerSecs)   setRunning(true);   // resume where it paused
+    else                  startTimer(secs);
+  };
 
   const timerMinutes = duration ? Math.round(duration / 60) : null;
   const isLow = timerSecs !== null && timerSecs <= 30 && running;
@@ -285,8 +311,14 @@ export default function CookingMode({ steps, recipeName, ingredients = [], onClo
             stages={stages}
             ingredients={ingredients}
             stepIdx={stepIdx}
-            onJumpToStage={setStepIdx}
+            onStageTap={handleStageTap}
             onStartCooking={() => { setStepIdx(0); setView('steps'); }}
+            timer={timerSecs !== null ? {
+              label:    done ? "time's up" : formatTime(timerSecs),
+              progress: duration ? 1 - timerSecs / duration : 0,
+              running,
+              done,
+            } : null}
           />
         </div>
       )}
