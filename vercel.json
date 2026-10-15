@@ -1,0 +1,8 @@
+{
+  "git": {
+    "deploymentEnabled": {
+      "claude/joint-finances-ai-app-k8z18t": false
+    }
+  },
+  "ignoreCommand": "if [ \"$VERCEL_GIT_COMMIT_REF\" = \"deploy\" ]; then exit 1; else exit 0; fi"
+}
